@@ -23,6 +23,6 @@ function ParsePrTitle
         $res.Groups[4].Value
     }
     else {
-        Write-Error ("Could not parse the PR title: {0}" -f $Title)
+        throw ("Could not parse the PR title '{0}' - must be a PR raised by Dependabot" -f $Title)
     }
 }
