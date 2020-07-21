@@ -25,7 +25,7 @@ runs:
   using: "docker"
   image: "Dockerfile"
   args:
-    - -PrTitle
+    - -Title
     - ${{inputs.pr_title}}
     - -PackageNamePatternsJsonArray
     - ${{inputs.package_filter_as_json_array}}
