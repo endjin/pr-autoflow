@@ -14,12 +14,14 @@ param (
 )
 
 $ErrorActionPreference = 'Stop'
+$here = Split-Path -Parent $PSCommandPath
 
 try {
-    # Import-Module ./module/dependabot-pr-parser.psm1 -DisableNameChecking
+    Import-Module $here/module/dependabot-pr-parser.psm1 -DisableNameChecking
 
     # github actions can only pass strings, so this handles the JSON deserialization
     if ($PackageNamePatternsJsonArray -ne '[]') {
+        Write-Verbose "PackageNamePatternsJsonArray: $PackageNamePatternsJsonArray"
         $PackageNamePatterns = ConvertFrom-Json $PackageNamePatternsJsonArray
     }
 
@@ -42,5 +44,7 @@ try {
     }
 }
 catch {
+    Write-Warning $_.ScriptStackTrace
+    Write-Error $_.Exception.Message
     exit 1
 }
