@@ -44,6 +44,7 @@ try {
     }
 }
 catch {
+    $ErrorActionPreference = 'Continue'
     Write-Host "Error: $($_.Exception.Message)"
     Write-Warning $_.ScriptStackTrace
     Write-Error $_.Exception.Message

@@ -1,4 +1,4 @@
-name: 'parse_dependabot_pr_posh'
+name: 'dependabot-pr-parser'
 description: 'Extracts information about a Dependabot PR from its title.'
 inputs:
   pr_title:
