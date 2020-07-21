@@ -2,7 +2,7 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\$sut"
 
-Describe 'GetUpgradeType Tests' {
+Describe 'GetUpgradeType Tests' -Tag Unit {
     It 'detects a major upgrade' {
         $res = GetUpgradeType -FromVersion 1.0.0 -ToVersion 2.0.0
         $res | Should -BeOfType [string]

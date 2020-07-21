@@ -2,7 +2,7 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\$sut"
 
-Describe 'IsPackageInteresting Tests' {
+Describe 'IsPackageInteresting Tests' -Tag Unit {
 
     It 'should return false when no patterns are specified' {
         $res = IsPackageInteresting -PackageName 'MyPackage' -PackageNamePatterns @()

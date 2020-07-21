@@ -4,7 +4,7 @@ $sutPath = Join-Path $here $sut
 
 Import-Module $here/module/dependabot-pr-parser.psm1 -DisableNameChecking
 
-Describe 'RunAction Tests' {
+Describe 'RunAction UnitTests' -Tag Unit {
 
     Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'dependency_name' }
     Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'version_from' }
@@ -67,5 +67,57 @@ Describe 'RunAction Tests' {
             Assert-VerifiableMock
             Assert-MockCalled SetOutputVariable -Times 6
         }
+    }
+}
+
+Describe 'RunAction Integration Tests' -Tag Integration {
+
+    # Ensure we have an up-to-date image and that it builds correctly
+    It 'Docker container image should build successfully' {
+        docker build -t dependabot-pr-parser $here/..
+
+        $LASTEXITCODE | Should -Be 0
+    }
+
+    # Use '%--' to prevent powershell from pre-parsing the arguments we are sending to Docker
+    $baseDockerCmd = "docker run -i --rm dependabot-pr-parser --%"
+    $baseActionParams = @(
+        '-Title'
+        '"Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground"'
+    )
+
+    It 'Docker container should run successfully when passing only a PR title' {
+        $actionArgs = ($baseActionParams -join ' ')
+        $dockerCmd = "$baseDockerCmd $actionArgs"
+        $res = Invoke-Expression $dockerCmd
+
+        $LASTEXITCODE | Should -Be 0
+        ($res -match "::set-output").Count | Should -Be 5
+    }
+
+    It 'Docker container should run successfully when passing a PR title and a non-matching pattern' {
+        $actionArgs = (($baseActionParams + '[\"Newtonsoft.Json.*\"]') -join ' ')
+        $dockerCmd = "$baseDockerCmd $actionArgs"
+        $res = Invoke-Expression $dockerCmd
+
+        $LASTEXITCODE | Should -Be 0
+        ($res -match "::set-output").Count | Should -Be 5
+    }
+
+    It 'Docker container should run successfully when passing a PR title and a matching pattern' {
+        $actionArgs = (($baseActionParams + '[\"Corvus.*\"]') -join ' ')
+        $dockerCmd = "$baseDockerCmd $actionArgs"
+        $res = Invoke-Expression $dockerCmd
+
+        $LASTEXITCODE | Should -Be 0
+        ($res -match "::set-output").Count | Should -Be 6
+    }
+
+    It 'Docker container should return non-zero if the action fails' {
+        $dockerCmd = ('{0} -Title "My own PR"' -f $baseDockerCmd)
+        $res = Invoke-Expression $dockerCmd
+
+        $LASTEXITCODE | Should -Be 1
+        $res[0] | Should -BeLike "Error:*"
     }
 }

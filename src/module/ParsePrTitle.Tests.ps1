@@ -2,7 +2,7 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\$sut"
 
-Describe 'ParsePrTitle Tests' {
+Describe 'ParsePrTitle Tests' -Tag Unit {
     
     It 'should fail when parsing a non-Dependabot PR' {
         { ParsePrTitle -Title 'My very own PR' }  | Should -Throw
