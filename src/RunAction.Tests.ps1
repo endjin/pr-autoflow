@@ -14,7 +14,7 @@ Describe 'RunAction UnitTests' -Tag Unit {
     
     Context 'Non-matching package' {
         Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'is_interesting_package' -and $value -eq $false }
-        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'update_type' -and $value -eq 'minor' }     # intentionally broken to test behaviour in CI workflow
+        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'update_type' -and $value -eq 'major' }
 
         It 'should run successfully with no package patterns specified' {
             & $sutPath -Title 'Bump Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground'
@@ -87,7 +87,7 @@ Describe 'RunAction Integration Tests' -Tag Integration {
         $res = Invoke-Expression $dockerCmd
 
         $LASTEXITCODE | Should -Be 0
-        ($res -match "::set-output").Count | Should -Be 5
+        ($res -match "::set-output").Count | Should -Be 6
     }
 
     It 'Docker container should run successfully when passing a PR title and a non-matching pattern' {
@@ -96,7 +96,7 @@ Describe 'RunAction Integration Tests' -Tag Integration {
         $res = Invoke-Expression $dockerCmd
 
         $LASTEXITCODE | Should -Be 0
-        ($res -match "::set-output").Count | Should -Be 5
+        ($res -match "::set-output").Count | Should -Be 6
     }
 
     It 'Docker container should run successfully when passing a PR title and a matching pattern' {
