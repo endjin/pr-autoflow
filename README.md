@@ -10,7 +10,7 @@ The action supports the following inputs.
 |Name | Required? | Description
 |-----|---------|------------
 |pr_title| Y |The title of the PR to be parsed
-|package_filter| Y |A JSON-formatted array of wildcard patterns for dependencies that should be flagged as interesting (e.g. candidates for auto-merging later in the workflow)
+|package_filter| N |A JSON-formatted array of wildcard patterns for dependencies that should be flagged as interesting (e.g. candidates for auto-merging later in the workflow)
 
 ## Outputs
 The action emits the following output variables.
@@ -25,7 +25,11 @@ The action emits the following output variables.
 
 ## Example Usage
 ```
-job:
+name: sample
+on: 
+  pull_request:
+    types: [opened, reopened]
+jobs:
   evaluate_dependabot_pr:
     runs-on: ubuntu-latest
     steps:
