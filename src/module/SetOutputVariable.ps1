@@ -11,5 +11,5 @@ function SetOutputVariable
         $Value
     )
     
-    Write-Output ("::set-output name={0}::{1}" -f $Name, $Value)
+    Write-Output ("`n::set-output name={0}::{1}" -f $Name, $Value)
 }
