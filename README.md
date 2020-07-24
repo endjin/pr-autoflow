@@ -1,6 +1,6 @@
 # dependabot-pr-parser
 
-![build](https://github.com/endjin/dependabot-pr-parser/workflows/ci/badge.svg)
+![build](https://github.com/endjin/dependabot-pr-parser/workflows/build/badge.svg)
 [![GitHub license](https://img.shields.io/badge/License-Apache%202-blue.svg)](https://raw.githubusercontent.com/corvus-dotnet/Corvus.Deployment/master/LICENSE)
 
 A GitHub action that extracts information about a [Dependabot](https://docs.github.com/en/github/administering-a-repository/about-github-dependabot-version-updates) PR from its convention-based title.
