@@ -2,7 +2,16 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 $sutPath = Join-Path $here $sut
 
-Import-Module $here/module/dependabot-pr-parser.psm1 -DisableNameChecking -Force
+$savedPath = $PWD
+$moduleBase = Split-Path -Parent $here
+$modulePath = Join-Path $moduleBase '_module/src'
+Push-Location $moduleBase
+git clone https://github.com/endjin/dependabot-pr-parser-powershell _module
+Push-Location $moduleBase/_module
+git checkout master
+Push-Location $savedPath
+
+Import-Module $modulePath/dependabot-pr-parser.psm1 -DisableNameChecking -Force
 
 Describe 'RunAction UnitTests' -Tag Unit {
 

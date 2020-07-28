@@ -17,7 +17,12 @@ $ErrorActionPreference = 'Stop'
 $here = Split-Path -Parent $PSCommandPath
 
 try {
-    Import-Module $here/module/dependabot-pr-parser.psm1 -DisableNameChecking
+    if ( !(Get-Module dependabot-pr-parser)) {
+        if ( !(Test-Path $here/module/dependabot-pr-parser.psm1) ) {
+            throw 'Unable to locate the dependabot-pr-parser module - something went wrong!'
+        }
+        Import-Module $here/module/dependabot-pr-parser.psm1 -DisableNameChecking
+    }
 
     # github actions can only pass strings, so this handles the JSON deserialization
     if ($PackageNamePatternsJsonArray -ne '[]') {
