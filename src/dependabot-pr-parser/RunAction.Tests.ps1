@@ -3,7 +3,7 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 $sutPath = Join-Path $here $sut
 
 $savedPath = $PWD
-$moduleBase = Split-Path -Parent $here
+$moduleBase = Split-Path -Parent (Split-Path -Parent $here)
 $modulePath = Join-Path $moduleBase '_module/src'
 Push-Location $moduleBase
 git clone https://github.com/endjin/dependabot-pr-parser-powershell _module
@@ -78,7 +78,7 @@ Describe 'RunAction Integration Tests' -Tag Integration {
 
     # Ensure we have an up-to-date image and that it builds correctly
     It 'Docker container image should build successfully' {
-        docker build -t dependabot-pr-parser $here/..
+        docker build -t dependabot-pr-parser $here
 
         $LASTEXITCODE | Should -Be 0
     }
