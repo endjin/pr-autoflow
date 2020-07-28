@@ -2,10 +2,11 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 $sutPath = Join-Path $here $sut
 
-Import-Module $here/module/dependabot-pr-parser.psm1 -DisableNameChecking
+Import-Module $here/module/dependabot-pr-parser.psm1 -DisableNameChecking -Force
 
 Describe 'RunAction UnitTests' -Tag Unit {
 
+    # Mock SetOutputVariable { }
     Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'dependency_name' }
     Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'version_from' }
     Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'version_to' }
@@ -13,59 +14,53 @@ Describe 'RunAction UnitTests' -Tag Unit {
     
     Context 'Non-matching package' {
         Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'is_interesting_package' -and $value -eq $false }
+        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'update_type' -and $value -eq 'major' }
 
         It 'should run successfully with no package patterns specified' {
             & $sutPath -Title 'Bump Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground'
 
             Assert-VerifiableMock
-            Assert-MockCalled SetOutputVariable -Times 5
         }
 
         It 'should run successfully with a non-matching pattern specified' {
             & $sutPath -Title 'Bump Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground' -PackageNamePatterns 'Corvus.*'
 
             Assert-VerifiableMock
-            Assert-MockCalled SetOutputVariable -Times 5
         }
 
         It 'should run successfully with a non-matching JSON-formatted pattern specified' {
             & $sutPath -Title 'Bump Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground' -PackageNamePatternsJsonArray '["Corvus.*"]'
 
             Assert-VerifiableMock
-            Assert-MockCalled SetOutputVariable -Times 5
         }
     }
 
     Context 'Matching package' {
         Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'is_interesting_package' -and $value -eq $true }
-        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'update_type' }
+        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'update_type' -and $value -eq 'patch' }
 
         It 'should run successfully with a matching pattern specified' {
-            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground' -PackageNamePatterns 'Corvus.*'
+            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageNamePatterns 'Corvus.*'
 
             Assert-VerifiableMock
-            Assert-MockCalled SetOutputVariable -Times 6
         }
 
         It 'should run successfully when matching one of multiple specified patterns' {
-            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground' -PackageNamePatterns @('Corvus.*', 'Menes.*')
+            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageNamePatterns @('Corvus.*', 'Menes.*')
 
             Assert-VerifiableMock
-            Assert-MockCalled SetOutputVariable -Times 6
         }
 
         It 'should run successfully with a matching JSON-formatted pattern specified' {
-            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground' -PackageNamePatternsJsonArray '["Corvus.*"]'
+            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageNamePatternsJsonArray '["Corvus.*"]'
 
             Assert-VerifiableMock
-            Assert-MockCalled SetOutputVariable -Times 6
         }
 
         It 'should run successfully when matching one of multiple specified JSON-formatted patterns' {
-            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground' -PackageNamePatternsJsonArray '["Corvus.*","Menes.*"]'
+            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageNamePatternsJsonArray '["Corvus.*","Menes.*"]'
 
             Assert-VerifiableMock
-            Assert-MockCalled SetOutputVariable -Times 6
         }
     }
 }
@@ -92,7 +87,7 @@ Describe 'RunAction Integration Tests' -Tag Integration {
         $res = Invoke-Expression $dockerCmd
 
         $LASTEXITCODE | Should -Be 0
-        ($res -match "::set-output").Count | Should -Be 5
+        ($res -match "::set-output").Count | Should -Be 6
     }
 
     It 'Docker container should run successfully when passing a PR title and a non-matching pattern' {
@@ -101,7 +96,7 @@ Describe 'RunAction Integration Tests' -Tag Integration {
         $res = Invoke-Expression $dockerCmd
 
         $LASTEXITCODE | Should -Be 0
-        ($res -match "::set-output").Count | Should -Be 5
+        ($res -match "::set-output").Count | Should -Be 6
     }
 
     It 'Docker container should run successfully when passing a PR title and a matching pattern' {

@@ -1,0 +1,12 @@
+{
+  "action": "opened",
+  "pull_request": {
+    "head": {
+      "ref": "sample-head-ref"
+    },
+    "base": {
+      "ref": "sample-base-ref"
+    },
+    "title": "Bump Acme.MyLibrary from 0.0.9 to 1.0.0 in /Solutions/Acme.MyLibrary"
+  }
+}

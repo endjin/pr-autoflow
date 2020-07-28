@@ -1,0 +1,24 @@
+name: test_workflow
+on: 
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  test_job:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Parse Dependabot PR title
+      id: parse_dependabot_pr
+      uses: ./
+      with:
+        pr_title: ${{ github.event.pull_request.title }}
+        package_filter: |
+          ["Acme.*"]
+    - name: Display PR details
+      run: |
+        echo "dependency_name        : ${{ steps.parse_dependabot_pr.outputs.dependency_name }}"
+        echo "is_interesting_package : ${{ steps.parse_dependabot_pr.outputs.is_interesting_package }}"
+        echo "version_from           : ${{ steps.parse_dependabot_pr.outputs.version_from }}"
+        echo "version_to             : ${{ steps.parse_dependabot_pr.outputs.version_to }}"
+        echo "update_type            : ${{ steps.parse_dependabot_pr.outputs.update_type }}"

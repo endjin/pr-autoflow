@@ -4,7 +4,7 @@ inputs:
   pr_title:
     description: 'The title of the PR.'
     required: true
-  package_filter_as_json_array:
+  package_filter:
     description: 'JSON-formatted list of wildcard expressions used to flag particular dependencies (e.g. enabled for auto-merging).'
     required: false
     default: '[]'
@@ -28,4 +28,4 @@ runs:
     - -Title
     - ${{inputs.pr_title}}
     - -PackageNamePatternsJsonArray
-    - ${{inputs.package_filter_as_json_array}}
+    - ${{inputs.package_filter}}

@@ -38,10 +38,8 @@ try {
     $matchFound = IsPackageInteresting -PackageName $dependencyName -PackageNamePatterns $PackageNamePatterns
     SetOutputVariable 'is_interesting_package' $matchFound
 
-    if ($matchFound) {
-        $upgradeType = GetUpgradeType -FromVersion $fromVersion -ToVersion $toVersion
-        SetOutputVariable 'update_type' $upgradeType
-    }
+    $upgradeType = GetUpgradeType -FromVersion $fromVersion -ToVersion $toVersion
+    SetOutputVariable 'update_type' $upgradeType
 }
 catch {
     $ErrorActionPreference = 'Continue'
