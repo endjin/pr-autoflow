@@ -75,18 +75,28 @@ Describe 'RunAction Integration Tests' -Tag Integration {
 
     # Ensure we have an up-to-date image and that it builds correctly
     It 'Docker container image should build successfully' {
-        docker build -t dependabot-pr-parser $here
+        docker build -t dependabot-pr-watcher $here
 
         $LASTEXITCODE | Should -Be 0
     }
 
     # Use '%--' to prevent powershell from pre-parsing the arguments we are sending to Docker
-    $baseDockerCmd = "docker run -i --rm dependabot-pr-parser --%"
+    $baseDockerCmd = "docker run -i --rm dependabot-pr-watcher --%"
     $baseActionParams = @(
-        '-Title'
-        '"Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground"'
+        '-Titles'
+        '"[\"Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground\"]"'
+        '-PackageWildCardExpressions'
+        '"[\"Corvus.*\", \"Endjin.*\"]"'
+        '-Verbose'
     )
 
-    # TODO: container tests
+    It 'Docker container should run successfully when passing PR titles and a matching pattern' {
+        $actionArgs = $baseActionParams
+        $dockerCmd = "$baseDockerCmd $actionArgs"
+        $res = Invoke-Expression $dockerCmd
 
+        $LASTEXITCODE | Should -Be 0
+        Write-Host $res
+        ($res -match "::set-output name=is_complete::False").Count | Should -Be 1
+    }
 }

@@ -9,8 +9,9 @@ param (
     $TitlesAsJsonArray,
 
     [Parameter()]
+    [ValidateSet('patch','minor','major')]
     [string]
-    $MaxUpdateType = 'minor',
+    $MaxSemVerIncrement = 'minor',
 
     [Parameter(Mandatory = $true, ParameterSetName = "Json")]
     [string]
@@ -40,7 +41,7 @@ try {
         $Titles = ConvertFrom-Json $TitlesAsJsonArray
     }
 
-    $result = AnyInterestingPRs -Titles $Titles -MaxSemVerIncrement "minor" -PackageWildcardExpressions $PackageWildCardExpressions
+    $result = AnyInterestingPRs -Titles $Titles -MaxSemVerIncrement $MaxSemVerIncrement -PackageWildcardExpressions $PackageWildCardExpressions
 
     SetOutputVariable 'is_complete' $(!$result)
 }
