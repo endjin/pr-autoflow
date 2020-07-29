@@ -28,7 +28,7 @@ Push-Location $savedPath
 
 Import-Module $modulePath/dependabot-pr-parser.psm1 -DisableNameChecking -Force
 
-Describe 'RunAction UnitTests' -Tag Unit {
+Describe 'dependabot-pr-watcher RunAction UnitTests' -Tag Unit {
 
     Context 'Outstanding Dependabot PRs' {
         Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'is_complete' -and $value -eq $false }
@@ -106,7 +106,7 @@ Describe 'RunAction UnitTests' -Tag Unit {
     }
 }
 
-Describe 'RunAction Integration Tests' -Tag Integration {
+Describe 'dependabot-pr-watcher RunAction Integration Tests' -Tag Integration {
 
     # Ensure we have an up-to-date image and that it builds correctly
     It 'Docker container image should build successfully' {
