@@ -1,0 +1,32 @@
+name: test_workflow
+on: 
+  pull_request:
+    types: [closed]
+
+jobs:
+  test_job:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - id: get_pr_list
+      name: Get PR list
+      uses: actions/github-script@v2
+      with:
+        script: |
+          core.setOutput('pr_list', '["Bump Acme.MyLibrary from 0.9.0 to 1.0.0 in /Solutions/dependency-playground"]')
+    - name: Debug PR list
+      run: |
+        echo "pr_list : ${{ steps.get_pr_list.outputs.pr_list }}"
+    - id: watch_dependabot_prs
+      name: Watch Dependabot PRs
+      uses: ./
+      with:
+        pr_titles: ${{ steps.get_pr_list.outputs.pr_list }}
+        package_wildcard_expressions: |
+          ["Acme.*"]
+        max_semver_increment: patch
+        verbose_mode: 'True'
+    - name: Display is_complete
+      run: |
+        echo "is_complete : ${{ steps.watch_dependabot_prs.outputs.is_complete }}"
+        

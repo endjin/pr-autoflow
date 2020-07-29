@@ -1,10 +1,34 @@
+[CmdletBinding()]
+param (
+    [Parameter()]
+    [string]
+    $moduleRepoUrl = 'https://github.com/endjin/dependabot-pr-parser-powershell',
+
+    [Parameter()]
+    [string]
+    $moduleBranch = 'master'
+)
+
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 $sutPath = Join-Path $here $sut
 
-Import-Module $here/module/dependabot-pr-parser.psm1 -DisableNameChecking -Force
+$savedPath = $PWD
+$repoBase = Split-Path -Parent (Split-Path -Parent $here)
+$repoDir = Join-Path $repoBase '_module'
+$modulePath = Join-Path $repoDir 'src'
 
-Describe 'RunAction UnitTests' -Tag Unit {
+Remove-Item -Force -Recurse $repoDir -ErrorAction SilentlyContinue
+
+Push-Location $repoBase
+git clone $moduleRepoUrl _module
+Push-Location $repoBase/_module
+git checkout $moduleBranch
+Push-Location $savedPath
+
+Import-Module $modulePath/dependabot-pr-parser.psm1 -DisableNameChecking -Force
+
+Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
 
     # Mock SetOutputVariable { }
     Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'dependency_name' }
@@ -23,13 +47,13 @@ Describe 'RunAction UnitTests' -Tag Unit {
         }
 
         It 'should run successfully with a non-matching pattern specified' {
-            & $sutPath -Title 'Bump Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground' -PackageNamePatterns 'Corvus.*'
+            & $sutPath -Title 'Bump Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground' -PackageWildCardExpressions 'Corvus.*'
 
             Assert-VerifiableMock
         }
 
         It 'should run successfully with a non-matching JSON-formatted pattern specified' {
-            & $sutPath -Title 'Bump Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground' -PackageNamePatternsJsonArray '["Corvus.*"]'
+            & $sutPath -Title 'Bump Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground' -PackageWildCardExpressionsJsonArray '["Corvus.*"]'
 
             Assert-VerifiableMock
         }
@@ -40,36 +64,36 @@ Describe 'RunAction UnitTests' -Tag Unit {
         Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'update_type' -and $value -eq 'patch' }
 
         It 'should run successfully with a matching pattern specified' {
-            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageNamePatterns 'Corvus.*'
+            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageWildCardExpressions 'Corvus.*'
 
             Assert-VerifiableMock
         }
 
         It 'should run successfully when matching one of multiple specified patterns' {
-            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageNamePatterns @('Corvus.*', 'Menes.*')
+            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageWildCardExpressions @('Corvus.*', 'Menes.*')
 
             Assert-VerifiableMock
         }
 
         It 'should run successfully with a matching JSON-formatted pattern specified' {
-            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageNamePatternsJsonArray '["Corvus.*"]'
+            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageWildCardExpressionsJsonArray '["Corvus.*"]'
 
             Assert-VerifiableMock
         }
 
         It 'should run successfully when matching one of multiple specified JSON-formatted patterns' {
-            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageNamePatternsJsonArray '["Corvus.*","Menes.*"]'
+            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageWildCardExpressionsJsonArray '["Corvus.*","Menes.*"]'
 
             Assert-VerifiableMock
         }
     }
 }
 
-Describe 'RunAction Integration Tests' -Tag Integration {
+Describe 'dependabot-pr-parser RunAction Integration Tests' -Tag Integration {
 
     # Ensure we have an up-to-date image and that it builds correctly
     It 'Docker container image should build successfully' {
-        docker build -t dependabot-pr-parser $here/..
+        docker build -t dependabot-pr-parser $here
 
         $LASTEXITCODE | Should -Be 0
     }

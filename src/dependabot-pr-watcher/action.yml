@@ -1,0 +1,32 @@
+name: 'dependabot-pr-watcher'
+description: 'Determines when Dependabot PRs are complete.'
+inputs:
+  pr_titles:
+    description: 'Stringified JSON array of PR titles.'
+    required: true
+  max_semver_increment:
+    description: 'The maximum SemVer increment to watch for.'
+    required: false
+    default: 'minor'
+  package_wildcard_expressions:
+    description: 'Stringified JSON array of wildcard expressions used to filter which dependencies to watch for'
+    required: false
+    default: '[]'
+  verbose_mode:
+    description: 'When "True", runs with additional logging'
+    required: false
+    default: 'False'
+outputs:
+  is_complete:
+    description: 'Flags whether all matching Dependabot PRs have completed.'
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - -TitlesJsonArray
+    - ${{inputs.pr_titles}}
+    - -MaxSemVerIncrement
+    - ${{inputs.max_semver_increment}}
+    - -PackageWildCardExpressionsJsonArray
+    - ${{inputs.package_wildcard_expressions}}
+    - -Verbose:$${{inputs.verbose_mode}}
