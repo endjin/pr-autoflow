@@ -1,7 +1,8 @@
 FROM alpine/git as module_builder
 WORKDIR /tmp
+ARG repoUrl=https://github.com/endjin/dependabot-pr-parser-powershell
 ARG branch=master
-RUN git clone https://github.com/endjin/dependabot-pr-parser-powershell \
+RUN git clone ${repoUrl} \
         && cd dependabot-pr-parser-powershell \
         && git checkout ${branch}
 

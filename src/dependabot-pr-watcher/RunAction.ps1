@@ -6,7 +6,7 @@ param (
 
     [Parameter(Mandatory = $true, ParameterSetName = "Json")]
     [string]
-    $TitlesAsJsonArray,
+    $TitlesJsonArray,
 
     [Parameter()]
     [ValidateSet('patch','minor','major')]
@@ -37,8 +37,8 @@ try {
     if ($PSCmdlet.ParameterSetName -eq "Json") {
         Write-Verbose "PackageWildCardExpressionsJsonArray: $PackageWildCardExpressionsJsonArray"
         $PackageWildCardExpressions = ConvertFrom-Json $PackageWildCardExpressionsJsonArray
-        Write-Verbose "TitlesAsJsonArray: $TitlesAsJsonArray"
-        $Titles = ConvertFrom-Json $TitlesAsJsonArray
+        Write-Verbose "TitlesJsonArray: $TitlesJsonArray"
+        $Titles = ConvertFrom-Json $TitlesJsonArray
     }
 
     $result = AnyInterestingPRs -Titles $Titles -MaxSemVerIncrement $MaxSemVerIncrement -PackageWildcardExpressions $PackageWildCardExpressions
