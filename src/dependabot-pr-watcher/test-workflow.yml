@@ -26,8 +26,7 @@ jobs:
           ["Acme.*"]
         max_semver_increment: patch
         verbose_mode: 'True'
-
-    # - name: debug
-    #   run: |
-    #     echo "is_complete : ${{ steps.watch_dependabot_prs.outputs.is_complete }}"
+    - name: Display is_complete
+      run: |
+        echo "is_complete : ${{ steps.watch_dependabot_prs.outputs.is_complete }}"
         
