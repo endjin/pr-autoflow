@@ -1,20 +1,24 @@
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true, ParameterSetName = "Native")]
     [string[]]
     $Titles,
+
+    [Parameter(Mandatory = $true, ParameterSetName = "Json")]
+    [string]
+    $TitlesAsJsonArray,
 
     [Parameter()]
     [string]
     $MaxUpdateType = 'minor',
 
-    [Parameter()]
+    [Parameter(Mandatory = $true, ParameterSetName = "Json")]
     [string]
-    $PackageNamePatternsJsonArray = '[]',
+    $PackageWildCardExpressionsJsonArray,
 
-    [Parameter()]
+    [Parameter(Mandatory = $true, ParameterSetName = "Native")]
     [string[]]
-    $PackageNamePatterns = @()
+    $PackageWildCardExpressions = @()
 )
 
 $ErrorActionPreference = 'Stop'
@@ -29,14 +33,16 @@ try {
     }
 
     # github actions can only pass strings, so this handles the JSON deserialization
-    if ($PackageNamePatternsJsonArray -ne '[]') {
-        Write-Verbose "PackageNamePatternsJsonArray: $PackageNamePatternsJsonArray"
-        $PackageNamePatterns = ConvertFrom-Json $PackageNamePatternsJsonArray
+    if ($PSCmdlet.ParameterSetName -eq "Json") {
+        Write-Verbose "PackageWildCardExpressionsJsonArray: $PackageWildCardExpressionsJsonArray"
+        $PackageWildCardExpressions = ConvertFrom-Json $PackageWildCardExpressionsJsonArray
+        Write-Verbose "TitlesAsJsonArray: $TitlesAsJsonArray"
+        $Titles = ConvertFrom-Json $TitlesAsJsonArray
     }
 
-    # TODO: call new module function
+    $result = AnyInterestingPRs -Titles $Titles -MaxSemVerIncrement "minor" -PackageWildcardExpressions $PackageWildCardExpressions
 
-
+    SetOutputVariable 'is_complete' $(!$result)
 }
 catch {
     $ErrorActionPreference = 'Continue'

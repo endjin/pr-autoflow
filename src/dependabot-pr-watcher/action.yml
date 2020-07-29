@@ -14,7 +14,7 @@ inputs:
     default: '[]'
 outputs:
   is_complete:
-    description: 'Flags whether all matching Dependabot PRsThe name of the dependency.'
+    description: 'Flags whether all matching Dependabot PRs have completed.'
 runs:
   using: "docker"
   image: "Dockerfile"

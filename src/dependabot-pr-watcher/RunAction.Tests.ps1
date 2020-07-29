@@ -15,12 +15,59 @@ Import-Module $modulePath/dependabot-pr-parser.psm1 -DisableNameChecking -Force
 
 Describe 'RunAction UnitTests' -Tag Unit {
 
-    
-    
-    Context 'Non-matching package' {
+    Context 'Outstanding Dependabot PRs' {
+        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'is_complete' -and $value -eq $false }
+
+        It 'reports as incomplete with matching packages' -TestCases @(
+            @{ titles = @('Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground'); packageWildcardExpressions = @("Corvus.*", "Endjin.*") }
+            @{ titles = @('Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.10.0 in /Solutions/dependency-playground'); packageWildcardExpressions = @("Corvus.*", "Endjin.*") }
+        ) {
+            param (
+                [string[]] $titles,
+                [string[]] $packageWildcardExpressions
+            )
+
+            & $sutPath `
+                -Titles $titles `
+                -PackageWildCardExpressions $packageWildcardExpressions
+
+            Assert-VerifiableMock
+        }
     }
 
-    Context 'Matching package' {
+    Context 'No outstanding Dependabot PRs' {
+        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'is_complete' -and $value -eq $true }
+
+        It 'reports as complete with no matching packages' -TestCases @(
+            @{ titles = @('Bump Newtonsoft.Json from 0.9.0 to 0.10.0 in /Solutions/dependency-playground'); packageWildcardExpressions = @("Corvus.*", "Endjin.*") }
+            @{ titles = @('Bump Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground'); packageWildcardExpressions = @("Corvus.*", "Endjin.*") }
+        ) {
+            param (
+                [string[]] $titles,
+                [string[]] $packageWildcardExpressions
+            )
+
+            & $sutPath `
+                -Titles $titles `
+                -PackageWildCardExpressions $packageWildcardExpressions
+
+            Assert-VerifiableMock
+        }
+
+        It 'reports as complete with matching packages with major increment' -TestCases @(
+            @{ titles = @('Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground'); packageWildcardExpressions = @("Corvus.*", "Endjin.*") }
+        ) {
+            param (
+                [string[]] $titles,
+                [string[]] $packageWildcardExpressions
+            )
+
+            & $sutPath `
+                -Titles $titles `
+                -PackageWildCardExpressions $packageWildcardExpressions
+
+            Assert-VerifiableMock
+        }
     }
 }
 
