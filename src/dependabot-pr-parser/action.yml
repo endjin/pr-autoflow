@@ -8,6 +8,10 @@ inputs:
     description: 'JSON-formatted list of wildcard expressions used to flag particular dependencies (e.g. enabled for auto-merging).'
     required: false
     default: '[]'
+  verbose_mode:
+    description: 'When "True", runs with additional logging'
+    required: false
+    default: 'False'
 outputs:
   dependency_name:
     description: 'The name of the dependency.'
@@ -27,5 +31,6 @@ runs:
   args:
     - -Title
     - ${{inputs.pr_title}}
-    - -PackageNamePatternsJsonArray
+    - -PackageWildCardExpressionsJsonArray
     - ${{inputs.package_filter}}
+    - -Verbose:$${{inputs.verbose_mode}}

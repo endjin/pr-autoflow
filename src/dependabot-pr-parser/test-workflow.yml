@@ -15,6 +15,7 @@ jobs:
         pr_title: ${{ github.event.pull_request.title }}
         package_filter: |
           ["Acme.*"]
+        verbose_mode: 'True'
     - name: Display PR details
       run: |
         echo "dependency_name        : ${{ steps.parse_dependabot_pr.outputs.dependency_name }}"
@@ -22,3 +23,5 @@ jobs:
         echo "version_from           : ${{ steps.parse_dependabot_pr.outputs.version_from }}"
         echo "version_to             : ${{ steps.parse_dependabot_pr.outputs.version_to }}"
         echo "update_type            : ${{ steps.parse_dependabot_pr.outputs.update_type }}"
+
+        

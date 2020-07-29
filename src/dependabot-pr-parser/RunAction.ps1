@@ -6,11 +6,11 @@ param (
 
     [Parameter()]
     [string]
-    $PackageNamePatternsJsonArray = '[]',
+    $PackageWildCardExpressionsJsonArray = '[]',
 
     [Parameter()]
     [string[]]
-    $PackageNamePatterns = @()
+    $PackageWildCardExpressions = @()
 )
 
 $ErrorActionPreference = 'Stop'
@@ -25,9 +25,9 @@ try {
     }
 
     # github actions can only pass strings, so this handles the JSON deserialization
-    if ($PackageNamePatternsJsonArray -ne '[]') {
-        Write-Verbose "PackageNamePatternsJsonArray: $PackageNamePatternsJsonArray"
-        $PackageNamePatterns = ConvertFrom-Json $PackageNamePatternsJsonArray
+    if ($PackageWildCardExpressionsJsonArray -ne '[]') {
+        Write-Verbose "PackageWildCardExpressionsJsonArray: $PackageWildCardExpressionsJsonArray"
+        $PackageWildCardExpressions = ConvertFrom-Json $PackageWildCardExpressionsJsonArray
     }
 
     # parse the PR title
@@ -40,10 +40,10 @@ try {
     SetOutputVariable 'folder' $folder
 
     # is the dependency name match the wildcard pattern?
-    $matchFound = IsPackageInteresting -PackageName $dependencyName -PackageNamePatterns $PackageNamePatterns
+    $matchFound = IsPackageInteresting -PackageName $dependencyName -PackageWildCardExpressions $PackageWildCardExpressions
     SetOutputVariable 'is_interesting_package' $matchFound
 
-    $upgradeType = GetUpgradeType -FromVersion $fromVersion -ToVersion $toVersion
+    $upgradeType = GetSemVerIncrement -FromVersion $fromVersion -ToVersion $toVersion
     SetOutputVariable 'update_type' $upgradeType
 }
 catch {
