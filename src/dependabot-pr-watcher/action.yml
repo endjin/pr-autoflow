@@ -1,0 +1,27 @@
+name: 'dependabot-pr-watcher'
+description: 'Determines when Dependabot PRs are complete.'
+inputs:
+  pr_titles:
+    description: 'Stringified JSON array of PR titles.'
+    required: true
+  max_update_type:
+    description: 'The maximum SemVer update to watch for.'
+    required: false
+    default: 'minor'
+  package_filter:
+    description: 'Stringified JSON array of wildcard expressions used to filter which dependencies to watch for'
+    required: false
+    default: '[]'
+outputs:
+  is_complete:
+    description: 'Flags whether all matching Dependabot PRsThe name of the dependency.'
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - -Title
+    - ${{inputs.pr_title}}
+    - -MaxUpdateType
+    - ${{inputs.max_update_type}}
+    - -PackageNamePatternsJsonArray
+    - ${{inputs.package_filter}}
