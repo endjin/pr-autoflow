@@ -8,4 +8,5 @@ jobs:
     name: Run Pester tests
     steps:
     - uses: actions/checkout@v2
-    - run: pwsh -f ./run-tests.ps1
+    - run: pwsh -f ./module/run-tests.ps1
+    - run: pwsh -f ./actions/run-tests.ps1

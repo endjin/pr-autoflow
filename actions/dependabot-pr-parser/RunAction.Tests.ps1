@@ -1,42 +1,25 @@
-[CmdletBinding()]
-param (
-    [Parameter()]
-    [string]
-    $moduleRepoUrl = 'https://github.com/endjin/dependabot-pr-parser-powershell',
-
-    [Parameter()]
-    [string]
-    $moduleBranch = 'master'
-)
-
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 $sutPath = Join-Path $here $sut
 
-$savedPath = $PWD
-$repoBase = Split-Path -Parent (Split-Path -Parent $here)
-$repoDir = Join-Path $repoBase '_module'
-$modulePath = Join-Path $repoDir 'src'
+$repoDir = Resolve-Path (Join-Path $here '../..')
+$moduleDir = Resolve-Path (Join-Path $repoDir 'module')
 
-Remove-Item -Force -Recurse $repoDir -ErrorAction SilentlyContinue
-
-Push-Location $repoBase
-git clone $moduleRepoUrl _module
-Push-Location $repoBase/_module
-git checkout $moduleBranch
-Push-Location $savedPath
+Write-Host "Here: $here"
+Write-Host "Repo dir: $repoDir"
+Write-Host "Module dir: $moduleDir"
 
 Describe 'Missing Module UnitTests' -Tag Unit {
-    It 'should raise an error when the dependabot-pr-parser module is not loaded' {
-        Remove-Module dependabot-pr-parser -ErrorAction SilentlyContinue
-        { & $sutPath -Titles @('Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground') `
+    It 'should raise an error when the pr-autoflow module is not loaded' {
+        Remove-Module pr-autoflow -ErrorAction SilentlyContinue
+        { & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' `
                      -PackageWildCardExpressions @("Corvus.*") } | Should Throw
     }
 }
 
 Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
 
-    Import-Module $modulePath/dependabot-pr-parser.psd1 -DisableNameChecking -Force
+    Import-Module $moduleDir/pr-autoflow.psd1 -DisableNameChecking -Force
 
     # Mock SetOutputVariable { }
     Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'dependency_name' }
@@ -99,15 +82,17 @@ Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
 
 Describe 'dependabot-pr-parser RunAction Integration Tests' -Tag Integration {
 
+    $dockerfilePath = Join-Path $here Dockerfile_test
+
     # Ensure we have an up-to-date image and that it builds correctly
     It 'Docker container image should build successfully' {
-        docker build -t dependabot-pr-parser $here
+        docker build -t dependabot-pr-parser --no-cache -f $dockerfilePath $repoDir
 
         $LASTEXITCODE | Should -Be 0
     }
 
     # Use '%--' to prevent powershell from pre-parsing the arguments we are sending to Docker
-    $baseDockerCmd = "docker run -i --rm dependabot-pr-parser --%"
+    $baseDockerCmd = "docker run --rm dependabot-pr-parser --%"
     $baseActionParams = @(
         '-Title'
         '"Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground"'
