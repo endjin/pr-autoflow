@@ -26,9 +26,17 @@ Push-Location $repoBase/_module
 git checkout $moduleBranch
 Push-Location $savedPath
 
-Import-Module $modulePath/dependabot-pr-parser.psm1 -DisableNameChecking -Force
+Describe 'Missing Module UnitTests' -Tag Unit {
+    It 'should raise an error when the dependabot-pr-parser module is not loaded' {
+        
+        { & $sutPath -Titles @('Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground') `
+                     -PackageWildCardExpressions @("Corvus.*") } | Should Throw
+    }
+}
 
 Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
+
+    Import-Module $modulePath/dependabot-pr-parser.psd1 -DisableNameChecking -Force
 
     # Mock SetOutputVariable { }
     Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'dependency_name' }
@@ -53,7 +61,7 @@ Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
         }
 
         It 'should run successfully with a non-matching JSON-formatted pattern specified' {
-            & $sutPath -Title 'Bump Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground' -PackageWildCardExpressionsJsonArray '["Corvus.*"]'
+            & $sutPath -Title 'Bump Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground' -PackageWildCardExpressions '["Corvus.*"]'
 
             Assert-VerifiableMock
         }
@@ -76,13 +84,13 @@ Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
         }
 
         It 'should run successfully with a matching JSON-formatted pattern specified' {
-            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageWildCardExpressionsJsonArray '["Corvus.*"]'
+            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageWildCardExpressions '["Corvus.*"]'
 
             Assert-VerifiableMock
         }
 
         It 'should run successfully when matching one of multiple specified JSON-formatted patterns' {
-            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageWildCardExpressionsJsonArray '["Corvus.*","Menes.*"]'
+            & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageWildCardExpressions '["Corvus.*","Menes.*"]'
 
             Assert-VerifiableMock
         }
@@ -137,6 +145,6 @@ Describe 'dependabot-pr-parser RunAction Integration Tests' -Tag Integration {
         $res = Invoke-Expression $dockerCmd
 
         $LASTEXITCODE | Should -Be 1
-        $res[0] | Should -BeLike "Error:*"
+        $res[1] | Should -BeLike "Error:*"
     }
 }

@@ -1,3 +1,5 @@
+#Requires -Modules @{ ModuleName='dependabot-pr-parser'; ModuleVersion='1.0.0' }
+
 [CmdletBinding()]
 param (
     [Parameter(Mandatory=$true)]
@@ -5,31 +7,16 @@ param (
     $Title,
 
     [Parameter()]
-    [string]
-    $PackageWildCardExpressionsJsonArray = '[]',
-
-    [Parameter()]
+    [AllowNull()]
+    [AllowEmptyCollection()]
+    [JsonTransform()]
     [string[]]
     $PackageWildCardExpressions = @()
 )
 
 $ErrorActionPreference = 'Stop'
-$here = Split-Path -Parent $PSCommandPath
 
 try {
-    if ( !(Get-Module dependabot-pr-parser)) {
-        if ( !(Test-Path $here/module/dependabot-pr-parser.psm1) ) {
-            throw 'Unable to locate the dependabot-pr-parser module - something went wrong!'
-        }
-        Import-Module $here/module/dependabot-pr-parser.psm1 -DisableNameChecking
-    }
-
-    # github actions can only pass strings, so this handles the JSON deserialization
-    if ($PackageWildCardExpressionsJsonArray -ne '[]') {
-        Write-Verbose "PackageWildCardExpressionsJsonArray: $PackageWildCardExpressionsJsonArray"
-        $PackageWildCardExpressions = ConvertFrom-Json $PackageWildCardExpressionsJsonArray
-    }
-
     # parse the PR title
     $dependencyName,$fromVersion,$toVersion,$folder = ParsePrTitle -Title $Title
 

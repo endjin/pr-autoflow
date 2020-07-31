@@ -31,6 +31,6 @@ runs:
   args:
     - -Title
     - ${{inputs.pr_title}}
-    - -PackageWildCardExpressionsJsonArray
+    - -PackageWildCardExpressions
     - ${{inputs.package_filter}}
     - -Verbose:$${{inputs.verbose_mode}}

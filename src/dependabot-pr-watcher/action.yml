@@ -23,10 +23,10 @@ runs:
   using: "docker"
   image: "Dockerfile"
   args:
-    - -TitlesJsonArray
+    - -Titles
     - ${{inputs.pr_titles}}
     - -MaxSemVerIncrement
     - ${{inputs.max_semver_increment}}
-    - -PackageWildCardExpressionsJsonArray
+    - -PackageWildCardExpressions
     - ${{inputs.package_wildcard_expressions}}
     - -Verbose:$${{inputs.verbose_mode}}
