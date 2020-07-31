@@ -26,9 +26,17 @@ Push-Location $repoBase/_module
 git checkout $moduleBranch
 Push-Location $savedPath
 
-Import-Module $modulePath/dependabot-pr-parser.psm1 -DisableNameChecking -Force
-
+Describe 'Missing Module UnitTests' -Tag Unit {
+    It 'should raise an error when the dependabot-pr-parser module is not loaded' {
+        
+        { & $sutPath -Titles @('Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground') `
+                     -PackageWildCardExpressions @("Corvus.*") } | Should Throw
+    }
+}
 Describe 'dependabot-pr-watcher RunAction UnitTests' -Tag Unit {
+
+    # The script being tested now requires the module to be loaded
+    Import-Module $modulePath/dependabot-pr-parser.psd1 -DisableNameChecking -Force
 
     Context 'Outstanding Dependabot PRs' {
         Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'is_complete' -and $value -eq $false }
@@ -53,12 +61,12 @@ Describe 'dependabot-pr-watcher RunAction UnitTests' -Tag Unit {
     Context 'No PRs (JSON handling)' {
         It 'runs successfully when a null list of PRs is passed' {
             & $sutPath `
-                -TitlesJsonArray $null -PackageWildCardExpressionsJsonArray '["Corvus.*", "Endjin.*"]'
+                -Titles $null -PackageWildCardExpressions '["Corvus.*", "Endjin.*"]'
         }
         
         It 'runs successfully when an empty list of PRs is passed' {
             & $sutPath `
-                -TitlesJsonArray "[]" -PackageWildCardExpressionsJsonArray '["Corvus.*", "Endjin.*"]'
+                -Titles "[]" -PackageWildCardExpressions '["Corvus.*", "Endjin.*"]'
         }
     }
 
@@ -75,8 +83,8 @@ Describe 'dependabot-pr-watcher RunAction UnitTests' -Tag Unit {
             )
 
             & $sutPath `
-                -TitlesJsonArray $titles `
-                -PackageWildCardExpressionsJsonArray $packageWildcardExpressions
+                -Titles $titles `
+                -PackageWildCardExpressions $packageWildcardExpressions
 
             Assert-VerifiableMock
         }
@@ -130,9 +138,9 @@ Describe 'dependabot-pr-watcher RunAction Integration Tests' -Tag Integration {
     # Use '%--' to prevent powershell from pre-parsing the arguments we are sending to Docker
     $baseDockerCmd = "docker run -i --rm dependabot-pr-watcher --%"
     $baseActionParams = @(
-        '-TitlesJsonArray'
+        '-Titles'
         '"[\"Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground\"]"'
-        '-PackageWildCardExpressionsJsonArray'
+        '-PackageWildCardExpressions'
         '"[\"Corvus.*\", \"Endjin.*\"]"'
     )
 
