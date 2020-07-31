@@ -11,7 +11,7 @@ The action supports the following inputs.
 |Name | Required? | Description
 |-----|---------|------------
 |pr_title| Y |The title of the PR to be parsed
-|package_filter| N |A JSON-formatted array of wildcard patterns for dependencies that should be flagged as interesting (e.g. candidates for auto-merging later in the workflow)
+|package_wildcard_expressions| N |A JSON-formatted array of wildcard patterns for dependencies that should be flagged as interesting (e.g. candidates for auto-merging later in the workflow)
 
 ## Outputs
 The action emits the following output variables.
@@ -19,7 +19,7 @@ The action emits the following output variables.
 |Name | Description
 |-----|------------
 |dependency_name|The package name of the dependency being updated by Dependabot
-|is_interesting_package|Whether the package name matched the `package_filter` input. Possible values: `True` or `False`
+|is_interesting_package|Whether the package name matched the `package_wildcard_expressions` input. Possible values: `True` or `False`
 |from_version|The current version of the dependency
 |to_version|The version Dependabot wants to upgrade the dependency to
 |update_type|The scale of SemVer update being proposed. Possible values: `major`, `minor` or `patch`
@@ -39,11 +39,11 @@ jobs:
       uses: endjin/dependabot-pr-parser@v1
       with:
         pr_title: ${{ github.event.pull_request.title }}
-        package_filter: ${{ env.PACKAGES_FILTER }}
+        package_wildcard_expressions: ${{ env.PACKAGE_WILDCARD_EXPRESSIONS }}
       env:
         # Customise this variable to choose which dependencies can be auto-merged
         # NOTE: The values needs to be a JSON-formatted array
-        PACKAGES_FILTER: |
+        PACKAGE_WILDCARD_EXPRESSIONS: |
           ["Acme.*"]
     - name: Output Dependabot PR information
       runs: |

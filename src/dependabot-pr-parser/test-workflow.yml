@@ -13,7 +13,7 @@ jobs:
       uses: ./
       with:
         pr_title: ${{ github.event.pull_request.title }}
-        package_filter: |
+        package_wildcard_expressions: |
           ["Acme.*"]
         verbose_mode: 'True'
     - name: Display PR details
