@@ -50,6 +50,18 @@ Describe 'dependabot-pr-watcher RunAction UnitTests' -Tag Unit {
         }
     }
 
+    Context 'No PRs (JSON handling)' {
+        It 'runs successfully when a null list of PRs is passed' {
+            & $sutPath `
+                -TitlesJsonArray $null -PackageWildCardExpressionsJsonArray '["Corvus.*", "Endjin.*"]'
+        }
+        
+        It 'runs successfully when an empty list of PRs is passed' {
+            & $sutPath `
+                -TitlesJsonArray "[]" -PackageWildCardExpressionsJsonArray '["Corvus.*", "Endjin.*"]'
+        }
+    }
+
     Context 'Outstanding Dependabot PRs (JSON handling)' {
         Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'is_complete' -and $value -eq $false }
 

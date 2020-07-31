@@ -1,10 +1,12 @@
 [CmdletBinding()]
 param (
     [Parameter(Mandatory = $true, ParameterSetName = "Native")]
+    [AllowEmptyCollection()]
     [string[]]
     $Titles,
 
     [Parameter(Mandatory = $true, ParameterSetName = "Json")]
+    [AllowEmptyString()]
     [string]
     $TitlesJsonArray,
 
