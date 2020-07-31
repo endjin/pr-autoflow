@@ -12,7 +12,7 @@ Write-Host "Module dir: $moduleDir"
 Describe 'Missing Module UnitTests' -Tag Unit {
     It 'should raise an error when the pr-autoflow module is not loaded' {
         Remove-Module pr-autoflow -ErrorAction SilentlyContinue
-        { & $sutPath -Titles @('Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground') `
+        { & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' `
                      -PackageWildCardExpressions @("Corvus.*") } | Should Throw
     }
 }
@@ -92,7 +92,7 @@ Describe 'dependabot-pr-parser RunAction Integration Tests' -Tag Integration {
     }
 
     # Use '%--' to prevent powershell from pre-parsing the arguments we are sending to Docker
-    $baseDockerCmd = "docker run -i --rm dependabot-pr-parser --%"
+    $baseDockerCmd = "docker run --rm dependabot-pr-parser --%"
     $baseActionParams = @(
         '-Title'
         '"Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground"'
