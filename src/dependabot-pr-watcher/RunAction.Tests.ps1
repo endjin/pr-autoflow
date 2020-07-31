@@ -28,7 +28,7 @@ Push-Location $savedPath
 
 Describe 'Missing Module UnitTests' -Tag Unit {
     It 'should raise an error when the dependabot-pr-parser module is not loaded' {
-        
+        Remove-Module dependabot-pr-parser -ErrorAction SilentlyContinue
         { & $sutPath -Titles @('Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground') `
                      -PackageWildCardExpressions @("Corvus.*") } | Should Throw
     }
