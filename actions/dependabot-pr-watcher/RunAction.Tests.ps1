@@ -6,7 +6,11 @@ param (
 
     [Parameter()]
     [string]
-    $moduleBranch = 'master'
+    $moduleBranch = 'master',
+
+    [Parameter()]
+    [switch]
+    $localMode
 )
 
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -15,16 +19,30 @@ $sutPath = Join-Path $here $sut
 
 $savedPath = $PWD
 $repoBase = Split-Path -Parent (Split-Path -Parent $here)
-$repoDir = Join-Path $repoBase '_module'
-$modulePath = Join-Path $repoDir 'src'
 
-Remove-Item -Force -Recurse $repoDir -ErrorAction SilentlyContinue
+if ($localMode) {
+    Write-Verbose "Running in 'localMode'"
+    $dockerContextPath = (Resolve-Path "$here/../..").Path
+    $dockerFile = 'Dockerfile.local'
+    $modulePath = Join-Path $dockerContextPath 'module'
+}
+else {
+    $dockerContextPath = $here
+    $dockerFile = 'Dockerfile'
+    $repoDir = Join-Path $repoBase '_module'
+    $modulePath = Join-Path $repoDir 'src'
 
-Push-Location $repoBase
-git clone $moduleRepoUrl _module
-Push-Location $repoBase/_module
-git checkout $moduleBranch
-Push-Location $savedPath
+    Remove-Item -Force -Recurse $repoDir -ErrorAction SilentlyContinue
+
+    Push-Location $repoBase
+    git clone $moduleRepoUrl _module
+    Push-Location $repoBase/_module
+    git checkout $moduleBranch
+    Push-Location $savedPath
+}
+Write-Verbose "modulePath: $modulePath"
+Write-Verbose "dockerContextPath: $dockerContextPath"
+
 
 Describe 'Missing Module UnitTests' -Tag Unit {
     It 'should raise an error when the dependabot-pr-parser module is not loaded' {
@@ -130,7 +148,9 @@ Describe 'dependabot-pr-watcher RunAction Integration Tests' -Tag Integration {
 
     # Ensure we have an up-to-date image and that it builds correctly
     It 'Docker container image should build successfully' {
-        docker build -t dependabot-pr-watcher --no-cache --build-arg repoUrl=$moduleRepoUrl --build-arg branch=$moduleBranch $here
+        Push-Location $here
+        docker build -t dependabot-pr-watcher --no-cache --build-arg repoUrl=$moduleRepoUrl --build-arg branch=$moduleBranch -f $dockerFile $dockerContextPath
+        Pop-Location
 
         $LASTEXITCODE | Should -Be 0
     }
@@ -147,6 +167,7 @@ Describe 'dependabot-pr-watcher RunAction Integration Tests' -Tag Integration {
     It 'Docker container should run successfully when passing PR titles and a matching pattern' {
         $actionArgs = $baseActionParams
         $dockerCmd = "$baseDockerCmd $actionArgs"
+        Write-Verbose "dockerCmd: $dockerCmd"
         $res = Invoke-Expression $dockerCmd
 
         $LASTEXITCODE | Should -Be 0

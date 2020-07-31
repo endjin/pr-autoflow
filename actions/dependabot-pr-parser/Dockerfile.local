@@ -1,0 +1,9 @@
+FROM alpine/git as module_builder
+WORKDIR /tmp
+ADD ./module /tmp/module/
+
+FROM mcr.microsoft.com/powershell:7.0.3-alpine-3.8
+COPY --from=module_builder /tmp/module /tmp/module/
+COPY ./actions/dependabot-pr-parser/pwsh-profile.ps1 /root/.config/powershell/Microsoft.PowerShell_profile.ps1
+COPY ./actions/dependabot-pr-parser /tmp/
+ENTRYPOINT ["pwsh","-File","/tmp/RunAction.ps1"]
