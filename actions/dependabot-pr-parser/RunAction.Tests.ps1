@@ -1,34 +1,12 @@
-[CmdletBinding()]
-param (
-    [Parameter()]
-    [string]
-    $moduleRepoUrl = 'https://github.com/endjin/dependabot-pr-parser-powershell',
-
-    [Parameter()]
-    [string]
-    $moduleBranch = 'master'
-)
-
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 $sutPath = Join-Path $here $sut
 
-$savedPath = $PWD
-$repoBase = Split-Path -Parent (Split-Path -Parent $here)
-$repoDir = Join-Path $repoBase '_module'
-$modulePath = Join-Path $repoDir 'src'
-
-Remove-Item -Force -Recurse $repoDir -ErrorAction SilentlyContinue
-
-Push-Location $repoBase
-git clone $moduleRepoUrl _module
-Push-Location $repoBase/_module
-git checkout $moduleBranch
-Push-Location $savedPath
+$moduleDir = Join-Path $here '../../module'
 
 Describe 'Missing Module UnitTests' -Tag Unit {
-    It 'should raise an error when the dependabot-pr-parser module is not loaded' {
-        Remove-Module dependabot-pr-parser -ErrorAction SilentlyContinue
+    It 'should raise an error when the pr-autoflow module is not loaded' {
+        Remove-Module pr-autoflow -ErrorAction SilentlyContinue
         { & $sutPath -Titles @('Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground') `
                      -PackageWildCardExpressions @("Corvus.*") } | Should Throw
     }
@@ -36,7 +14,7 @@ Describe 'Missing Module UnitTests' -Tag Unit {
 
 Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
 
-    Import-Module $modulePath/dependabot-pr-parser.psd1 -DisableNameChecking -Force
+    Import-Module $moduleDir/pr-autoflow.psd1 -DisableNameChecking -Force
 
     # Mock SetOutputVariable { }
     Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'dependency_name' }

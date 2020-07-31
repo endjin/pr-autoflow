@@ -7,7 +7,8 @@ try {
         Install-Module Pester -RequiredVersion $pesterVer -Force -Scope CurrentUser
     }
     Import-Module Pester
-    $results = Invoke-Pester $here/src -PassThru
+    Remove-Module pr-autoflow -ErrorAction SilentlyContinue
+    $results = Invoke-Pester $here -PassThru
 
     if ($results.FailedCount -gt 0) {
         throw ("{0} out of {1} tests failed - check previous logging for more details" -f $results.FailedCount, $results.TotalCount)
