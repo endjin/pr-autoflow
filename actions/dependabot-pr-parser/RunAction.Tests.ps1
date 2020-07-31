@@ -2,7 +2,12 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 $sutPath = Join-Path $here $sut
 
-$moduleDir = Join-Path $here '../../module'
+$repoDir = Resolve-Path (Join-Path $here '../..')
+$moduleDir = Resolve-Path (Join-Path $repoDir 'module')
+
+Write-Host "Here: $here"
+Write-Host "Repo dir: $repoDir"
+Write-Host "Module dir: $moduleDir"
 
 Describe 'Missing Module UnitTests' -Tag Unit {
     It 'should raise an error when the pr-autoflow module is not loaded' {
@@ -77,9 +82,11 @@ Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
 
 Describe 'dependabot-pr-parser RunAction Integration Tests' -Tag Integration {
 
+    $dockerfilePath = Join-Path $here Dockerfile_test
+
     # Ensure we have an up-to-date image and that it builds correctly
     It 'Docker container image should build successfully' {
-        docker build -t dependabot-pr-parser $here
+        docker build -t dependabot-pr-parser --no-cache -f $dockerfilePath $repoDir
 
         $LASTEXITCODE | Should -Be 0
     }

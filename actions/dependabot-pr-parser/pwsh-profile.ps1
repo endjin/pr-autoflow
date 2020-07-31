@@ -1,8 +1,8 @@
 Write-Host 'Loading profile...'
 
-if ( !(Get-Module dependabot-pr-parser)) {
-    if ( !(Test-Path /tmp/module/dependabot-pr-parser.psm1) ) {
-        throw 'Unable to locate the dependabot-pr-parser module - something went wrong!'
+if ( !(Get-Module pr-autoflow)) {
+    if ( !(Test-Path /tmp/module/pr-autoflow.psm1) ) {
+        throw 'Unable to locate the pr-autoflow module - something went wrong!'
     }
-    Import-Module /tmp/module/dependabot-pr-parser.psd1 -DisableNameChecking
+    Import-Module /tmp/module/pr-autoflow.psd1 -DisableNameChecking
 }
