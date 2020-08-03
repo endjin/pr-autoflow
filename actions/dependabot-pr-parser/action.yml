@@ -21,7 +21,7 @@ outputs:
     description: 'The version of the dependency being updated to.'
   folder:
     description: 'The folder where the dependency is updated.'
-  update_type:
+  semver_increment:
     description: 'The type of update (major, minor, patch).'
   is_matching_package:
     description: 'Flags whether the dependency matched any of the provided package name wildcard patterns'
