@@ -108,7 +108,7 @@ Describe 'dependabot-pr-parser RunAction Integration Tests' -Tag Integration {
     }
 
     It 'Docker container should run successfully when passing a PR title and a non-matching pattern' {
-        $actionArgs = (($baseActionParams + '[\"Newtonsoft.Json.*\"]') -join ' ')
+        $actionArgs = (($baseActionParams + '-PackageWildcardExpressions [\"Newtonsoft.Json.*\"]') -join ' ')
         $dockerCmd = "$baseDockerCmd $actionArgs"
         $res = Invoke-Expression $dockerCmd
 
@@ -117,7 +117,7 @@ Describe 'dependabot-pr-parser RunAction Integration Tests' -Tag Integration {
     }
 
     It 'Docker container should run successfully when passing a PR title and a matching pattern' {
-        $actionArgs = (($baseActionParams + '[\"Corvus.*\"]') -join ' ')
+        $actionArgs = (($baseActionParams + '-PackageWildcardExpressions [\"Corvus.*\"]') -join ' ')
         $dockerCmd = "$baseDockerCmd $actionArgs"
         $res = Invoke-Expression $dockerCmd
 
@@ -130,6 +130,6 @@ Describe 'dependabot-pr-parser RunAction Integration Tests' -Tag Integration {
         $res = Invoke-Expression $dockerCmd
 
         $LASTEXITCODE | Should -Be 1
-        $res[1] | Should -BeLike "Error:*"
+        ($res -join " ") | Should -BeLike "*Error:*"
     }
 }

@@ -8,6 +8,6 @@ RUN git clone ${repoUrl} \
 
 FROM mcr.microsoft.com/powershell:7.0.3-alpine-3.8
 COPY --from=module_builder /tmp/pr-autoflow/module/ /tmp/module/
-COPY ./pwsh-profile.ps1 /root/.config/powershell/Microsoft.PowerShell_profile.ps1
+COPY --from=module_builder /tmp/pr-autoflow/module/entrypoint.ps1 /tmp/
 COPY . /tmp/
-ENTRYPOINT ["pwsh","-File","/tmp/RunAction.ps1"]
+ENTRYPOINT ["pwsh","-File","/tmp/entrypoint.ps1"]
