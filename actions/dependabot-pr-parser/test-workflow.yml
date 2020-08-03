@@ -22,6 +22,6 @@ jobs:
         echo "is_interesting_package : ${{ steps.parse_dependabot_pr.outputs.is_interesting_package }}"
         echo "version_from           : ${{ steps.parse_dependabot_pr.outputs.version_from }}"
         echo "version_to             : ${{ steps.parse_dependabot_pr.outputs.version_to }}"
-        echo "update_type            : ${{ steps.parse_dependabot_pr.outputs.update_type }}"
+        echo "semver_increment            : ${{ steps.parse_dependabot_pr.outputs.semver_increment }}"
 
         

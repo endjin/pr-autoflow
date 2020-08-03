@@ -29,7 +29,7 @@ Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
     
     Context 'Non-matching package' {
         Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'is_interesting_package' -and $value -eq $false }
-        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'update_type' -and $value -eq 'major' }
+        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'semver_increment' -and $value -eq 'major' }
 
         It 'should run successfully with no package patterns specified' {
             & $sutPath -Title 'Bump Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground'
@@ -52,7 +52,7 @@ Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
 
     Context 'Matching package' {
         Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'is_interesting_package' -and $value -eq $true }
-        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'update_type' -and $value -eq 'patch' }
+        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'semver_increment' -and $value -eq 'patch' }
 
         It 'should run successfully with a matching pattern specified' {
             & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageWildCardExpressions 'Corvus.*'

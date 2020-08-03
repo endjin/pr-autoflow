@@ -31,7 +31,7 @@ try {
     SetOutputVariable 'is_interesting_package' $matchFound
 
     $upgradeType = GetSemVerIncrement -FromVersion $fromVersion -ToVersion $toVersion
-    SetOutputVariable 'update_type' $upgradeType
+    SetOutputVariable 'semver_increment' $upgradeType
 }
 catch {
     $ErrorActionPreference = 'Continue'
