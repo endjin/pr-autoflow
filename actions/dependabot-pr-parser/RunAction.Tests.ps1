@@ -19,7 +19,7 @@ Describe 'Missing Module UnitTests' -Tag Unit {
 
 Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
 
-    Import-Module $moduleDir/pr-autoflow.psd1 -DisableNameChecking -Force
+    Import-Module $moduleDir/Endjin.PRAutoflow.psd1 -DisableNameChecking -Force
 
     # Mock SetOutputVariable { }
     Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'dependency_name' }

@@ -19,7 +19,7 @@ Describe 'Missing Module UnitTests' -Tag Unit {
 Describe 'dependabot-pr-watcher RunAction UnitTests' -Tag Unit {
 
     # The script being tested now requires the module to be loaded
-    Import-Module $moduleDir/pr-autoflow.psd1 -DisableNameChecking -Force
+    Import-Module $moduleDir/Endjin.PRAutoflow.psd1 -DisableNameChecking -Force
 
     Context 'Outstanding Dependabot PRs' {
         Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'is_complete' -and $value -eq $false }

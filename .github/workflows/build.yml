@@ -8,5 +8,15 @@ jobs:
     name: Run Pester tests
     steps:
     - uses: actions/checkout@v2
-    - run: pwsh -f ./module/run-tests.ps1
-    - run: pwsh -f ./actions/run-tests.ps1
+    - run: pwsh -f ./run-tests.ps1
+  publish:
+    runs-on: ubuntu-latest
+    name: Publish to PowerShell Gallery
+    needs: run_tests
+    if: github.ref == 'refs/heads/master'
+    steps:
+    - run: |
+        Publish-Module -Name .\module\Endjin.PRAutoflow.psd1 -NuGetApiKey ${{ secrets.ENDJIN_NUGET_APIKEY }} -Verbose
+      shell: pwsh
+      name: Publish module
+    

@@ -21,7 +21,7 @@ ModuleVersion = '1.0.0'
 GUID = '632dbf9c-f857-41ba-b7d0-367037d2e058'
 
 # Author of this module
-Author = 'JamesDawson'
+Author = 'endjin'
 
 # Company or vendor of this module
 CompanyName = 'Endjin'
@@ -30,7 +30,7 @@ CompanyName = 'Endjin'
 Copyright = '(c) Endjin. All rights reserved.'
 
 # Description of the functionality provided by this module
-# Description = ''
+Description = 'PR Autoflow'
 
 # Minimum version of the PowerShell engine required by this module
 PowerShellVersion = '7.0'
