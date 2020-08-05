@@ -28,7 +28,18 @@ jobs:
         additionalArguments: |
           /overrideconfig increment=patch
 
+    # create the SemVer tag
     - uses: hole19/git-tag-action@master
       env:
         TAG: ${{ steps.gitversion.outputs.semver }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # Create the tags used for the actions
+    - uses: hole19/git-tag-action@master
+      env:
+        TAG: v${{ steps.gitversion.outputs.semver }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: hole19/git-tag-action@master
+      env:
+        TAG: v${{ steps.gitversion.outputs.major }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
