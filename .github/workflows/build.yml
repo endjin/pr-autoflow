@@ -38,7 +38,9 @@ jobs:
     needs:
     - run_tests
     - run_gitversion
-    if: startsWith(github.ref, 'refs/tags')
+    # only trigger for tags with the strict SemVer format, not the tag used by the actions (i.e. v1)
+    if: |
+      (startsWith(github.ref, 'refs/tags') && !startsWith(github.ref, 'refs/tags/v'))
     steps:
     - uses: actions/checkout@v2
     - run: |
@@ -46,4 +48,3 @@ jobs:
         Publish-Module -Name .\module\Endjin.PRAutoflow.psd1 -NuGetApiKey ${{ secrets.ENDJIN_PSGALLERY_APIKEY }} -Verbose
       shell: pwsh
       name: Publish module
-    
