@@ -82,7 +82,7 @@ Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
 
 Describe 'dependabot-pr-parser RunAction Integration Tests' -Tag Integration {
 
-    $dockerfilePath = Join-Path $here Dockerfile_test
+    $dockerfilePath = Join-Path $here Dockerfile.local
 
     # Ensure we have an up-to-date image and that it builds correctly
     It 'Docker container image should build successfully' {

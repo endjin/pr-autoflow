@@ -1,5 +1,5 @@
 $ErrorActionPreference = 'Stop'
-$dockerfile = 'Dockerfile_test'     # builds the container from your working copy
+$dockerfile = 'Dockerfile.local'     # builds the container from your working copy
 $imageName = 'dependabot-pr-parser'
 docker build --no-cache -t $imageName -f $dockerfile ../..
 if ($LASTEXITCODE -ne 0) { throw 'Error building docker image' }

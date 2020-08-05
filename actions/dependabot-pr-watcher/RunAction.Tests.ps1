@@ -111,7 +111,7 @@ Describe 'dependabot-pr-watcher RunAction UnitTests' -Tag Unit {
 
 Describe 'dependabot-pr-watcher RunAction Integration Tests' -Tag Integration {
 
-    $dockerfilePath = Join-Path $here Dockerfile_test
+    $dockerfilePath = Join-Path $here Dockerfile.local
 
     # Ensure we have an up-to-date image and that it builds correctly
     It 'Docker container image should build successfully' {
