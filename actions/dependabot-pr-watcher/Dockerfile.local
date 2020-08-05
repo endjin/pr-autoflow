@@ -1,5 +1,5 @@
 FROM mcr.microsoft.com/powershell:7.0.3-alpine-3.8
-COPY ./module/ /tmp/module/
+COPY ./module/ /usr/local/share/powershell/Modules/Endjin.PRAutoflow/
 COPY ./module/entrypoint.ps1 /tmp/
 COPY ./actions/dependabot-pr-watcher /tmp/
 ENTRYPOINT ["pwsh","-File","/tmp/entrypoint.ps1"]
