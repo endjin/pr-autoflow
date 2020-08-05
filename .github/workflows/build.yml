@@ -37,7 +37,7 @@ jobs:
     needs:
     - run_tests
     - run_gitversion
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' && steps.gitversion.outputs.preReleaseTag == ''
     steps:
     - uses: actions/checkout@v2
     - run: |
