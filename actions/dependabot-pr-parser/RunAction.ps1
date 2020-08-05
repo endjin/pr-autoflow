@@ -1,4 +1,4 @@
-#Requires -Modules @{ ModuleName='pr-autoflow'; ModuleVersion='1.0.0' }
+#Requires -Modules @{ ModuleName='Endjin.PRAutoflow'; ModuleVersion='0.0' }
 
 [CmdletBinding()]
 param (

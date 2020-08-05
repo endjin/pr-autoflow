@@ -9,9 +9,9 @@ Write-Host "Here: $here"
 Write-Host "Repo dir: $repoDir"
 Write-Host "Module dir: $moduleDir"
 
-Describe 'Missing Module UnitTests' -Tag Unit {
-    It 'should raise an error when the pr-autoflow module is not loaded' {
-        Remove-Module pr-autoflow -ErrorAction SilentlyContinue
+Describe 'Missing Module UnitTests (dependabot-pr-parser)' -Tag Unit {
+    It 'should raise an error when the Endjin.PRAutoflow module is not loaded' {
+        Remove-Module Endjin.PRAutoflow -ErrorAction SilentlyContinue
         { & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' `
                      -PackageWildCardExpressions @("Corvus.*") } | Should Throw
     }
@@ -19,7 +19,7 @@ Describe 'Missing Module UnitTests' -Tag Unit {
 
 Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
 
-    Import-Module $moduleDir/pr-autoflow.psd1 -DisableNameChecking -Force
+    Import-Module $moduleDir/Endjin.PRAutoflow.psd1 -DisableNameChecking -Force
 
     # Mock SetOutputVariable { }
     Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'dependency_name' }
