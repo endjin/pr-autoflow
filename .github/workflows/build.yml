@@ -40,7 +40,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: |
-        Update-ModuleManifest -Path .\module\Endjin.PRAutoflow.psd1 -ModuleVersion ${{ needs.run_gitversion.outputs.semver }} -ExportedFunctions @("*")
+        Update-ModuleManifest -Path .\module\Endjin.PRAutoflow.psd1 -ModuleVersion ${{ needs.run_gitversion.outputs.semver }} -FunctionsToExport @("*")
         Publish-Module -Name .\module\Endjin.PRAutoflow.psd1 -NuGetApiKey ${{ secrets.ENDJIN_PSGALLERY_APIKEY }} -Verbose
       shell: pwsh
       name: Publish module
