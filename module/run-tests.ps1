@@ -7,12 +7,14 @@ try {
         Install-Module Pester -RequiredVersion $pesterVer -Force -Scope CurrentUser
     }
     Import-Module Pester
-    Remove-Module pr-autoflow -ErrorAction SilentlyContinue
+    Remove-Module Endjin.PRAutoflow -ErrorAction SilentlyContinue
     $results = Invoke-Pester $here -PassThru
 
     if ($results.FailedCount -gt 0) {
         throw ("{0} out of {1} tests failed - check previous logging for more details" -f $results.FailedCount, $results.TotalCount)
     }
+
+    $results
 }
 catch {
     Write-Output ("::error file={0},line={1},col={2}::{3}" -f `
