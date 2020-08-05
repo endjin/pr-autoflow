@@ -1,6 +1,7 @@
 name: build
 on:
-  push
+- push
+- workflow_dispatch
 
 jobs:
   run_tests:
