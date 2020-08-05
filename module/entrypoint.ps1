@@ -5,12 +5,10 @@ param(
 
 Write-Host 'Running entrypoint script'
 
-if ( !(Get-Module Endjin.PRAutoflow)) {
-    if ( !(Test-Path /tmp/module/Endjin.PRAutoflow.psm1) ) {
-        throw 'Unable to locate the Endjin.PRAutoflow module - something went wrong!'
-    }
-    Import-Module /tmp/module/Endjin.PRAutoflow.psd1 -DisableNameChecking
+if ( !(Get-Module Endjin.PRAutoflow -ListAvailable)) {
+    throw 'Unable to locate the Endjin.PRAutoflow module - something went wrong!'
 }
+Import-Module Endjin.PRAutoflow -DisableNameChecking
 
 # Convert array of parameters passed by Docker into hashtable we can splat
 $htvars = @{}
