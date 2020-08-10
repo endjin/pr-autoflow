@@ -10,6 +10,7 @@ jobs:
     name: Run GitVersion
     outputs:
       semver: ${{ steps.gitversion.outputs.semver }}
+      major: ${{ steps.gitversion.outputs.major }}
       preReleaseTag: ${{ steps.gitversion.outputs.preReleaseTag }}
     steps:
     - uses: actions/setup-dotnet@v1
