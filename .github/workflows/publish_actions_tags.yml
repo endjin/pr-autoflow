@@ -37,6 +37,7 @@ jobs:
     needs:
     - run_gitversion
     steps:
+    - uses: actions/checkout@v2
     - name: Tag semver
       uses: hole19/git-tag-action@master
       env:
