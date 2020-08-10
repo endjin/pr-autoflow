@@ -21,17 +21,17 @@ try {
     $dependencyName,$fromVersion,$toVersion,$folder = ParsePrTitle -Title $Title
 
     # set github action output variables
-    SetOutputVariable 'dependency_name' $dependencyName
-    SetOutputVariable 'version_from' $fromVersion
-    SetOutputVariable 'version_to' $toVersion
-    SetOutputVariable 'folder' $folder
+    Set-Output 'dependency_name' $dependencyName
+    Set-Output 'version_from' $fromVersion
+    Set-Output 'version_to' $toVersion
+    Set-Output 'folder' $folder
 
     # is the dependency name match the wildcard pattern?
     $matchFound = IsPackageInteresting -PackageName $dependencyName -PackageWildCardExpressions $PackageWildCardExpressions
-    SetOutputVariable 'is_interesting_package' $matchFound
+    Set-Output 'is_interesting_package' $matchFound
 
     $upgradeType = GetSemVerIncrement -FromVersion $fromVersion -ToVersion $toVersion
-    SetOutputVariable 'semver_increment' $upgradeType
+    Set-Output 'semver_increment' $upgradeType
 }
 catch {
     $ErrorActionPreference = 'Continue'

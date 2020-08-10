@@ -1,24 +1,16 @@
 $ErrorActionPreference = 'Stop'
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 
+Remove-Module Endjin.GitHubActions -Force -ErrorAction SilentlyContinue
+[array]$existingModule = Get-Module -ListAvailable Endjin.GitHubActions
+if (!$existingModule) {
+    Install-Module Endjin.GitHubActions -Force -Scope CurrentUser
+} else {
+    Update-Module Endjin.GitHubActions -Force -Scope CurrentUser
+}
+Import-Module Endjin.GitHubActions
+
 Import-Module $here/Endjin.PRAutoflow.psd1 -Force
-function foo {
-    param (
-        [Parameter()]
-        [JsonTransform()]
-        [string[]] $list
-    )
- 
-    return $list
-}
-
-Describe 'Module tests' {
-
-    It 'should expose the JsonTransformAttribute class when importing the module' {
-        $res = $(foo -list '["foo","bar"]')
-        $res.Count | Should -Be 2
-    }
-}
 
 Describe 'Packaging/publishing tests' {
     It 'should successfully create the nupkg when publishing the module' {

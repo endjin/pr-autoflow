@@ -9,6 +9,15 @@ Write-Host "Here: $here"
 Write-Host "Repo dir: $repoDir"
 Write-Host "Module dir: $moduleDir"
 
+Remove-Module Endjin.GitHubActions -Force -ErrorAction SilentlyContinue
+[array]$existingModule = Get-Module -ListAvailable Endjin.GitHubActions
+if (!$existingModule) {
+    Install-Module Endjin.GitHubActions -Force -Scope CurrentUser
+} else {
+    Update-Module Endjin.GitHubActions -Force -Scope CurrentUser
+}
+Import-Module Endjin.GitHubActions
+
 Describe 'Missing Module UnitTests (dependabot-pr-watcher)' -Tag Unit {
     It 'should raise an error when the Endjin.PRAutoflow module is not loaded' {
         Remove-Module Endjin.PRAutoflow -ErrorAction SilentlyContinue
@@ -22,7 +31,7 @@ Describe 'dependabot-pr-watcher RunAction UnitTests' -Tag Unit {
     Import-Module $moduleDir/Endjin.PRAutoflow.psd1 -DisableNameChecking -Force
 
     Context 'Outstanding Dependabot PRs' {
-        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'is_complete' -and $value -eq $false }
+        Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'is_complete' -and $value -eq $false }
 
         It 'reports as incomplete with matching packages' -TestCases @(
             @{ titles = @('Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground'); packageWildcardExpressions = @("Corvus.*", "Endjin.*") }
@@ -54,7 +63,7 @@ Describe 'dependabot-pr-watcher RunAction UnitTests' -Tag Unit {
     }
 
     Context 'Outstanding Dependabot PRs (JSON handling)' {
-        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'is_complete' -and $value -eq $false }
+        Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'is_complete' -and $value -eq $false }
 
         It 'reports as incomplete with matching packages' -TestCases @(
             @{ titles = '["Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground"]'; packageWildcardExpressions = '["Corvus.*", "Endjin.*"]' }
@@ -74,7 +83,7 @@ Describe 'dependabot-pr-watcher RunAction UnitTests' -Tag Unit {
     }
 
     Context 'No outstanding Dependabot PRs' {
-        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'is_complete' -and $value -eq $true }
+        Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'is_complete' -and $value -eq $true }
 
         It 'reports as complete with no matching packages' -TestCases @(
             @{ titles = @('Bump Newtonsoft.Json from 0.9.0 to 0.10.0 in /Solutions/dependency-playground'); packageWildcardExpressions = @("Corvus.*", "Endjin.*") }

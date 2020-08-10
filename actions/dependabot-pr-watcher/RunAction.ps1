@@ -27,7 +27,7 @@ $ErrorActionPreference = 'Stop'
 try {
     $result = AnyInterestingPRs -Titles $Titles -MaxSemVerIncrement $MaxSemVerIncrement -PackageWildcardExpressions $PackageWildCardExpressions
 
-    SetOutputVariable 'is_complete' $(!$result)
+    Set-Output 'is_complete' $(!$result)
 }
 catch {
     $ErrorActionPreference = 'Continue'
