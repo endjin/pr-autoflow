@@ -9,44 +9,46 @@ env:
     ["Endjin.*","Corvus.*"]
 
 jobs:
-  check_for_open_prs:
-    runs-on: ubuntu-latest
-    outputs:
-      no_open_prs: ${{ steps.watch_dependabot_prs.outputs.is_complete }}
-    steps:
-    - id: get_pr_list
-      name: Get PRs
-      uses: actions/github-script@v2
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const pulls = await github.pulls.list({
-            owner: context.payload.repository.owner.login,
-            repo: context.payload.repository.name,
-            state: 'open',
-            base: 'master'
-          });
-          return JSON.stringify(pulls.data.map(p=>p.title))
-        result-encoding: string
+  # Comment out check_for_open_prs, as is not required here, and would introduce a circular dependency on watch_dependabot_prs action
 
-    - name: Display pr_list
-      run: |
-        echo "pr_list : ${{ steps.get_pr_list.outputs.result }}"
+  # check_for_open_prs:
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     no_open_prs: ${{ steps.watch_dependabot_prs.outputs.is_complete }}
+  #   steps:
+  #   - id: get_pr_list
+  #     name: Get PRs
+  #     uses: actions/github-script@v2
+  #     with:
+  #       github-token: ${{ secrets.GITHUB_TOKEN }}
+  #       script: |
+  #         const pulls = await github.pulls.list({
+  #           owner: context.payload.repository.owner.login,
+  #           repo: context.payload.repository.name,
+  #           state: 'open',
+  #           base: 'master'
+  #         });
+  #         return JSON.stringify(pulls.data.map(p=>p.title))
+  #       result-encoding: string
 
-    - id: watch_dependabot_prs
-      name: Watch Dependabot PRs
-      uses: endjin/pr-autoflow/actions/dependabot-pr-watcher@v1
-      with:
-        pr_titles: ${{ steps.get_pr_list.outputs.result }}
-        package_wildcard_expressions: ${{ env.AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS }}
-        max_semver_increment: minor
-        verbose_mode: 'False'
+  #   - name: Display pr_list
+  #     run: |
+  #       echo "pr_list : ${{ steps.get_pr_list.outputs.result }}"
+
+  #   - id: watch_dependabot_prs
+  #     name: Watch Dependabot PRs
+  #     uses: endjin/pr-autoflow/actions/dependabot-pr-watcher@v1
+  #     with:
+  #       pr_titles: ${{ steps.get_pr_list.outputs.result }}
+  #       package_wildcard_expressions: ${{ env.AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS }}
+  #       max_semver_increment: minor
+  #       verbose_mode: 'False'
 
   tag_for_release:
     runs-on: ubuntu-latest
-    needs: check_for_open_prs
-    if: |
-      (needs.check_for_open_prs.outputs.no_open_prs == 'True')
+    #needs: check_for_open_prs
+    # if: |
+    #   (needs.check_for_open_prs.outputs.no_open_prs == 'True')
     steps:
     - uses: actions/setup-dotnet@v1
       with:
