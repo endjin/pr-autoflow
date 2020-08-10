@@ -9,6 +9,15 @@ Write-Host "Here: $here"
 Write-Host "Repo dir: $repoDir"
 Write-Host "Module dir: $moduleDir"
 
+Remove-Module Endjin.GitHubActions -Force
+[array]$existingModule = Get-Module -ListAvailable Endjin.GitHubActions
+if (!$existingModule) {
+    Install-Module Endjin.GitHubActions -Force -Scope CurrentUser
+} else {
+    Update-Module Endjin.GitHubActions -Force -Scope CurrentUser
+}
+Import-Module Endjin.GitHubActions
+
 Describe 'Missing Module UnitTests (dependabot-pr-parser)' -Tag Unit {
     It 'should raise an error when the Endjin.PRAutoflow module is not loaded' {
         Remove-Module Endjin.PRAutoflow -ErrorAction SilentlyContinue
@@ -21,15 +30,15 @@ Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
 
     Import-Module $moduleDir/Endjin.PRAutoflow.psd1 -DisableNameChecking -Force
 
-    # Mock SetOutputVariable { }
-    Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'dependency_name' }
-    Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'version_from' }
-    Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'version_to' }
-    Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'folder' }
+    # Mock Set-Output { }
+    Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'dependency_name' }
+    Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'version_from' }
+    Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'version_to' }
+    Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'folder' }
     
     Context 'Non-matching package' {
-        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'is_interesting_package' -and $value -eq $false }
-        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'semver_increment' -and $value -eq 'major' }
+        Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'is_interesting_package' -and $value -eq $false }
+        Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'semver_increment' -and $value -eq 'major' }
 
         It 'should run successfully with no package patterns specified' {
             & $sutPath -Title 'Bump Newtonsoft.Json from 0.9.0 to 1.0.0 in /Solutions/dependency-playground'
@@ -51,8 +60,8 @@ Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
     }
 
     Context 'Matching package' {
-        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'is_interesting_package' -and $value -eq $true }
-        Mock SetOutputVariable { } -Verifiable -ParameterFilter { $name -eq 'semver_increment' -and $value -eq 'patch' }
+        Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'is_interesting_package' -and $value -eq $true }
+        Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'semver_increment' -and $value -eq 'patch' }
 
         It 'should run successfully with a matching pattern specified' {
             & $sutPath -Title 'Bump Corvus.Extensions.Newtonsoft.Json from 0.9.0 to 0.9.1 in /Solutions/dependency-playground' -PackageWildCardExpressions 'Corvus.*'
