@@ -1,17 +1,11 @@
-name: build
+name: publish_actions_tags
 on:
 - push
 - workflow_dispatch
 
 jobs:
-  run_tests:
-    runs-on: ubuntu-latest
-    name: Run Pester tests
-    steps:
-    - uses: actions/checkout@v2
-    - run: pwsh -f ./run-tests.ps1
-
   run_gitversion:
+    if: startsWith(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
     name: Run GitVersion
     outputs:
@@ -36,3 +30,17 @@ jobs:
       run: |
         pwsh -noprofile -c '(dotnet-gitversion | ConvertFrom-Json).psobject.properties | % { echo ("::set-output name={0}::{1}" -f $_.name, $_.value) }'
 
+  publish_actions_tags:
+    runs-on: ubuntu-latest
+    name: Publish tags for GitHub Actions
+    needs:
+    - run_gitversion
+    steps:
+    - uses: hole19/git-tag-action@master
+      env:
+        TAG: v${{ needs.run_gitversion.outputs.semver }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: hole19/git-tag-action@master
+      env:
+        TAG: v${{ needs.run_gitversion.outputs.major }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
