@@ -9,7 +9,7 @@ Write-Host "Here: $here"
 Write-Host "Repo dir: $repoDir"
 Write-Host "Module dir: $moduleDir"
 
-Remove-Module Endjin.GitHubActions -Force
+Remove-Module Endjin.GitHubActions -Force -ErrorAction SilentlyContinue
 [array]$existingModule = Get-Module -ListAvailable Endjin.GitHubActions
 if (!$existingModule) {
     Install-Module Endjin.GitHubActions -Force -Scope CurrentUser
