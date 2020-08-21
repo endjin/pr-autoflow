@@ -23,6 +23,7 @@ function ParsePrTitle
         $res.Groups[4].Value
     }
     else {
-        throw ("Could not parse the PR title '{0}' - must be a PR raised by Dependabot" -f $Title)
+        Write-Host "Not a Dependabot PR"
+        return @()
     }
 }

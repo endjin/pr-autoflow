@@ -4,8 +4,9 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 
 Describe 'ParsePrTitle Tests' -Tag Unit {
     
-    It 'should fail when parsing a non-Dependabot PR' {
-        { ParsePrTitle -Title 'My very own PR' }  | Should -Throw
+    It 'should return null when parsing a non-Dependabot PR' {
+        $res = ParsePrTitle -Title 'My very own PR'
+        $res | Should -Be $null
     }
 
     Context 'Extracting PR details' {

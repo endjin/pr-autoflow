@@ -33,6 +33,11 @@ function AnyInterestingPRs
         
         # parse the PR title
         $packageName,$fromVersion,$toVersion,$folder = ParsePrTitle -Title $prTitle
+        # For non-Dependabot PRs we won't get a parsed title back, but this is fine.  For normal user PRs
+        # don't expect to have to wait for other related, in-flights PR to finish (like we do for Dependabot PRs)
+        if (!$packageName) {
+            break;
+        }
         Write-Verbose ('Package: {0}' -f $packageName)
 
         # apply package filter
