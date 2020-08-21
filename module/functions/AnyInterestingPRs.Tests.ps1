@@ -149,5 +149,15 @@ Describe 'AnyInterestingPRs Tests' -Tag Unit {
         }
     }
 
+    Context 'User PRs' {
+        It 'should return false when processing a normal user-initiated PR' {
+            $res = AnyInterestingPRs -Titles @('Fixes a nasty bug!') `
+                                    -MaxSemVerIncrement 'patch' `
+                                    -PackageWildcardExpressions @("Endjin.*","Corvus.*")
+            $res | Should -BeOfType [boolean]
+            $res | Should -Be $false  
+        }
+    }
+
 
 }
