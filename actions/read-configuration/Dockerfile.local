@@ -1,0 +1,3 @@
+FROM endjin/endjin.githubactions.powershell:1
+COPY ./actions/read-configuration /tmp/
+ENTRYPOINT ["pwsh","-File","/tmp/RunAction.ps1"]
