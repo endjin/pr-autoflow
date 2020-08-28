@@ -1,0 +1,1 @@
+act push -e test-workflow-event.json -j test_read_config -W .

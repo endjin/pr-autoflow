@@ -1,0 +1,16 @@
+name: test_workflow
+on: 
+  pull_request:
+    types: [closed]
+
+jobs:
+  test_read_config:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Read workflow configuration
+      id: get_config
+      uses: ./
+      with:
+        config_file: test-config.json
+        

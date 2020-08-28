@@ -8,7 +8,7 @@ param (
 $ErrorActionPreference = 'Stop'
 
 try {
-    $configJson = Get-Content (Join-Path ./github/workspace $ConfigFile)
+    $configJson = Get-Content $ConfigFile
     $config =  $configJson | ConvertFrom-Json
 
     Set-Output 'configJson' $config
