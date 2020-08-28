@@ -38,11 +38,9 @@ jobs:
 
     - name: Read workflow configuration
       id: get_config
-      run: |
-        config=`cat .workflow-config.json`
-        echo "::set-output name=configJson::$config"
-        MODULE_MANIFEST_PATH=`echo $(jq -r .module_manifest_path <<< $config)`
-        echo "::set-output name=module_manifest_path::$MODULE_MANIFEST_PATH"
+      uses: ./actions/read-configuration
+      with:
+        config_file: .workflow-config.json
   
     - run: |
         $manifest = Get-Content -Raw ${{ steps.get_config.outputs.module_manifest_path }} | Invoke-Expression
