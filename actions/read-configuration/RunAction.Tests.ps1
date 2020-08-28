@@ -29,12 +29,7 @@ Describe 'read-configuration RunAction UnitTests' -Tag Unit {
         Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'bar' -and $value -eq '2' }
 
         It 'should run successfully' {
-            Push-Location $here
-            New-Item -ItemType File -Path ./github/workspace/test-config.json -Force
-            Copy-Item test-config.json ./github/workspace -Force
-            & $sutPath -ConfigFile 'test-config.json'
-            Remove-Item ./github/workspace/test-config.json
-            Pop-Location
+            & $sutPath -ConfigFile (Join-Path $here 'test-config.json')
 
             Assert-VerifiableMock
         }
@@ -52,12 +47,11 @@ Describe 'read-configuration RunAction Integration Tests' -Tag Integration {
         $LASTEXITCODE | Should -Be 0
     }
 
-    # Map the current folder to '/github/workspace' to mimic what GHA does
     # Use '%--' to prevent powershell from pre-parsing the arguments we are sending to Docker
-    $baseDockerCmd = "docker run --rm -v $($here):/github/workspace read-configuration --%"
+    $baseDockerCmd = "docker run --rm -v $($here):/tmp read-configuration --%"
     $baseActionParams = @(
         '-ConfigFile'
-        '"test-config.json"'
+        '"tmp/test-config.json"'
     )
 
     It 'Docker container should run successfully' {
