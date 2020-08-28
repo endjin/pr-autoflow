@@ -1,0 +1,12 @@
+name: 'read-configuration'
+description: 'Reads a JSON configuration file of key-value pairs, and sets the corresponding (dynamic) outputs'
+inputs:
+  config_file:
+    description: 'The path of the JSON configuration file to read, relative to root of the repo.'
+    required: true
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - -ConfigFile
+    - ${{inputs.config_file}}
