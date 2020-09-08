@@ -20,18 +20,21 @@ try {
     # parse the PR title
     $dependencyName,$fromVersion,$toVersion,$folder = ParsePrTitle -Title $Title
 
-    # set github action output variables
-    Set-Output 'dependency_name' $dependencyName
-    Set-Output 'version_from' $fromVersion
-    Set-Output 'version_to' $toVersion
-    Set-Output 'folder' $folder
+    # if no dependency name, it means we did not match the dependabot PR pattern
+    if ($dependencyName) { 
+        # set github action output variables
+        Set-Output 'dependency_name' $dependencyName
+        Set-Output 'version_from' $fromVersion
+        Set-Output 'version_to' $toVersion
+        Set-Output 'folder' $folder
 
-    # is the dependency name match the wildcard pattern?
-    $matchFound = IsPackageInteresting -PackageName $dependencyName -PackageWildCardExpressions $PackageWildCardExpressions
-    Set-Output 'is_interesting_package' $matchFound
+        # does the dependency name match the wildcard pattern?
+        $matchFound = IsPackageInteresting -PackageName $dependencyName -PackageWildCardExpressions $PackageWildCardExpressions
+        Set-Output 'is_interesting_package' $matchFound
 
-    $upgradeType = GetSemVerIncrement -FromVersion $fromVersion -ToVersion $toVersion
-    Set-Output 'semver_increment' $upgradeType
+        $upgradeType = GetSemVerIncrement -FromVersion $fromVersion -ToVersion $toVersion
+        Set-Output 'semver_increment' $upgradeType
+    }
 }
 catch {
     $ErrorActionPreference = 'Continue'
