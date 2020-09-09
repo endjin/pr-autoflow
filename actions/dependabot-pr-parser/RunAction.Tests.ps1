@@ -29,14 +29,34 @@ Describe 'Missing Module UnitTests (dependabot-pr-parser)' -Tag Unit {
 Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
 
     Import-Module $moduleDir/Endjin.PRAutoflow.psd1 -DisableNameChecking -Force
-
-    # Mock Set-Output { }
-    Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'dependency_name' }
-    Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'version_from' }
-    Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'version_to' }
-    Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'folder' }
     
+    Context 'Non-dependabot PR' {
+        Mock Set-Output { }
+
+        It 'should run successfully with no package patterns specified' {
+            & $sutPath -Title 'I am not a dependabot PR'
+
+            Assert-MockCalled Set-Output 0
+        }
+
+        It 'should run successfully with a non-matching pattern specified' {
+            & $sutPath -Title 'I am not a dependabot PR' -PackageWildCardExpressions 'Corvus.*'
+
+            Assert-MockCalled Set-Output 0
+        }
+
+        It 'should run successfully with a non-matching JSON-formatted pattern specified' {
+            & $sutPath -Title 'I am not a dependabot PR' -PackageWildCardExpressions '["Corvus.*"]'
+
+            Assert-MockCalled Set-Output 0
+        }
+    }
+
     Context 'Non-matching package' {
+        Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'dependency_name' -and $value -eq 'Newtonsoft.Json' }
+        Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'version_from' -and $value -eq '0.9.0' }
+        Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'version_to' -and $value -eq '1.0.0' }
+        Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'folder' -and $value -eq '/Solutions/dependency-playground' }
         Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'is_interesting_package' -and $value -eq $false }
         Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'semver_increment' -and $value -eq 'major' }
 
@@ -60,6 +80,10 @@ Describe 'dependabot-pr-parser RunAction UnitTests' -Tag Unit {
     }
 
     Context 'Matching package' {
+        Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'dependency_name' -and $value -eq 'Corvus.Extensions.Newtonsoft.Json' }
+        Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'version_from' -and $value -eq '0.9.0' }
+        Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'version_to' -and $value -eq '0.9.1' }
+        Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'folder' -and $value -eq '/Solutions/dependency-playground' }
         Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'is_interesting_package' -and $value -eq $true }
         Mock Set-Output { } -Verifiable -ParameterFilter { $name -eq 'semver_increment' -and $value -eq 'patch' }
 
@@ -134,11 +158,11 @@ Describe 'dependabot-pr-parser RunAction Integration Tests' -Tag Integration {
         ($res -match "::set-output").Count | Should -Be 6
     }
 
-    It 'Docker container should return non-zero if the action fails' {
+    It 'Docker container should run successfully for non-dependabot PR' {
         $dockerCmd = ('{0} -Title "My own PR"' -f $baseDockerCmd)
         $res = Invoke-Expression $dockerCmd
 
-        $LASTEXITCODE | Should -Be 1
-        ($res -join " ") | Should -BeLike "*Error:*"
+        $LASTEXITCODE | Should -Be 0
+        ($res -match "::set-output").Count | Should -Be 0
     }
 }
