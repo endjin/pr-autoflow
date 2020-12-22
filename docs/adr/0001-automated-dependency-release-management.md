@@ -23,10 +23,11 @@ This ADR describes an automation process that can reduce the burden associated w
 
 The process for approving, merging and releasing these types of updates can be automated so long as suitable control measures are in-place to manage the different package promotion requirements.
 
-### Core Concepts
+### Concepts
 
 A number of terms are used to describe the process, they are defined as follows:
 
+* `semver-increment`: The scale of a given change as indicated by the change in the semantic version (i.e. patch, minor, major)
 * `auto-approve`: The process of a CI/CD bot approving a pull request
 * `auto-merge`: The process of a pull request being merged by a bot, once in a mergeable state (e.g. passing checks, approved etc.)
 * `auto-merge-candidate`: A pull request that is approved for `auto-merge`
@@ -35,34 +36,32 @@ A number of terms are used to describe the process, they are defined as follows:
 * `no-release`: An override mechanism for suppressing the `auto-release` behaviour
 * `release-pending`: The state a pull request can be in when it is approved for `auto-release`
 
-### Core Principles
+### Principles
 
 These set out the basic requirements for this process we wish to automate.
 
 1. Dependabot updates can utilise `auto-approve` and `auto-merge`, based on an allow list
+1. Dependabot updates otherwise approved for `auto-merge` can be opted-out based on their `semver-increment` - by default, 'major' changes are ignored by this process
 1. Dependabot updates approved for `auto-merge` can additionally utilise `auto-release`, based on an allow list
 1. Regular pull requests must never utilise `auto-approve`
 1. Regular pull requests will, by default, utilise `auto-release`
 1. Regular pull requests may opt-out of `auto-release`
 1. All `auto-release-candidate` pull requests must be batched together, to avoid unnecesary release churn
 
-The process that implements these controls can be articulated using the following series of questions (asked by the consuming repository):
+The process that implements these mechanisms is illustrated in the following flowchart diagram:
 
-1. Is this a dependabot pull request?
-    * Is it on the `auto-merge` allow list?
-        * Have all the checks passed?
-            * YES:
-                * `auto-approve`
-                * `auto-merge`
-        * Is it on the `auto-release` allow list?
-            * YES: apply the `release-pending` status
-1. Is this a regular pull request?
-    * YES: apply the `release-pending` status
-1. Has a pull request been completed?
-    * YES: Are there any open pull requests with the `release-pending` status?
-        * NO: `auto-release`
-
+![pr-autoflow: High-Level Process Flow][flowchart]
 
 
 ## Consequences
 
+* Overhead of maintaining external dependencies is reduced, provided adequate automated test coverage is available to validate such changes
+* Control over which dependencies benefit from this automation whilst ensuring that, for example, major changes to such dependencies still require manual approval
+* Streamlines a continuous delivery process for the typical pull request workflow
+* By combining `auto-merge` with `auto-release`, dependency updates can automatically propogate through a hierarchy of related repositories with manual intervention only by exception
+
+## Future Considerations
+
+* Add instrumentation to this process to faciliate centralised tracking of metrics related to the propogation of updates across repositories
+
+[flowchart]: /docs/images/flowchart.jpg "pr-autoflow: High-Level Process Flow"
