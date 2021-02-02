@@ -34,6 +34,17 @@ Describe 'read-configuration RunAction UnitTests' -Tag Unit {
             Assert-VerifiableMock
         }
     }
+
+    Context 'JSON handling' {
+        Mock Set-Output { @{"$name" = "$value"} }
+
+        It "should set the 'configJson' property correctly" {
+            $results = & $sutPath -ConfigFile (Join-Path $here 'test-config.json')
+
+            { $results.configJson | ConvertFrom-Json } | Should -Not -Throw
+        }
+
+    }
 }
 
 Describe 'read-configuration RunAction Integration Tests' -Tag Integration {
