@@ -8,10 +8,10 @@ param (
 $ErrorActionPreference = 'Stop'
 
 try {
-    $configJson = Get-Content $ConfigFile
+    $configJson = Get-Content -Raw $ConfigFile
     $config =  $configJson | ConvertFrom-Json
 
-    Set-Output 'configJson' $config
+    Set-Output 'configJson' $configJson
 
     $config.PSObject.Properties | ForEach-Object {
         Set-Output $_.Name $_.Value 
