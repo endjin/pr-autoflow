@@ -26,6 +26,13 @@ Finally, an [Architecture Decision Record](docs/adr/0001-automated-dependency-re
 <img src="./docs/images/flowchart.jpg" alt="pr-autoflow: High-Level Process Flow" width="500"/>
 
 
+
+## Prerequisites
+
+The configuration of [GitHub Dependabot](https://github.blog/2020-06-01-keep-all-your-packages-up-to-date-with-dependabot/) is outside the scope of this README and is assumed to be setup and working correctly for the repository.
+
+
+
 ## Actions
 This section documents each of the GitHub actions contained in this repo.
 
