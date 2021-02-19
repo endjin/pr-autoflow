@@ -21,6 +21,8 @@ The following repos are examples of how these actions can be integrated into a b
 
 ***NOTE**: The workflows in those repos are available as templates and documented [here](https://github.com/endjin/.github/blob/master/workflow-templates/README.md)*
 
+There are several GitHub Apps (or bots) involved in these workflows. For more information, see [pr-autoflow bots](./docs/bots.md)
+
 Finally, an [Architecture Decision Record](docs/adr/0001-automated-dependency-release-management.md) captures the design intent behind the workflows implemented above and is illustrated in the diagram below:
 
 <img src="./docs/images/flowchart.jpg" alt="pr-autoflow: High-Level Process Flow" width="500"/>
