@@ -39,6 +39,7 @@ jobs:
         fetch-depth: 0
 
     - id: run_build
+      name: Run build.ps1
       run: |
         $ErrorActionPreference = "Stop"
 
@@ -47,7 +48,7 @@ jobs:
 
         # set whether we are publishing the container image or just validating it
         $doPublish = $env:GIT_REF.StartsWith("refs/tags/") -or $env:FORCE_PUBLISH -eq "true"
-        $entrypointTasks = $doPublish ? @("Package","Publish") : @("Package")
+        $entrypointTasks = $doPublish ? @("FullBuildAndPublish") : @("FullBuild")
 
         pwsh -f ./build.ps1 -Tasks $entrypointTasks
       shell: pwsh
