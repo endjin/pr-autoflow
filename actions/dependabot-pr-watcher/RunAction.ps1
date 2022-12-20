@@ -1,4 +1,5 @@
 #Requires -Modules @{ ModuleName='Endjin.PRAutoflow'; ModuleVersion='0.0' }
+#Requires -Modules @{ ModuleName='Endjin.GitHubActions'; ModuleVersion='0.0' }
 
 [CmdletBinding()]
 param (
@@ -23,6 +24,10 @@ param (
 )
 
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
+if ($Env:SYSTEM_DEBUG -eq 'true') {
+    $VerbosePreference = 'Continue'
+}
 
 try {
     $result = AnyInterestingPRs -Titles $Titles -MaxSemVerIncrement $MaxSemVerIncrement -PackageWildcardExpressions $PackageWildCardExpressions
