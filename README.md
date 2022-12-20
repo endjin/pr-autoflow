@@ -115,7 +115,7 @@ The action emits the following output variables.
 |from_version|The current version of the dependency
 |to_version|The version Dependabot wants to upgrade the dependency to
 |folder|The folder where the dependency is updated.
-|update_type|The scale of SemVer update being proposed. Possible values: `major`, `minor` or `patch`
+|semver_increment|The scale of SemVer update being proposed. Possible values: `major`, `minor` or `patch`
 |is_matching_package|True when the PR refers to a package that matches any of the provided package name wildcard patterns
 
 #### Example Usage
@@ -190,7 +190,9 @@ The action emits the following output variables.
 |-----|------------
 |is_complete|True when there no open, matching Dependabot PRs.
 
+#### Example Usage
 
+```yaml
 name: sample
 on: 
   pull_request:
@@ -212,6 +214,7 @@ jobs:
             repo: context.payload.repository.name,
             state: 'open',
             base: 'master'
+          });
           return JSON.stringify(pulls.data.map(p=>p.title))
         result-encoding: string
     
@@ -223,11 +226,14 @@ jobs:
     
     - name: Read pr-autoflow configuration
       id: get_pr_autoflow_config
+      uses: endjin/pr-autoflow/actions/read-configuration@v1
       with:
         config_file: .github/config/pr-autoflow.json
 
     - name: Watch Dependabot PRs
       id: watch_dependabot_prs      
+      uses: endjin/pr-autoflow/actions/dependabot-pr-watcher@v1
+      with:
         pr_titles: ${{ steps.get_open_pr_list.outputs.result }}
         package_wildcard_expressions: ${{ steps.get_pr_autoflow_config.outputs.AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS }}
         max_semver_increment: minor
@@ -236,6 +242,15 @@ jobs:
     - name: Display job outputs
       run: |
         echo "no_open_automerge_candidate_prs: ${{ steps.watch_dependabot_prs.outputs.is_complete }}"
+```
+
+## Dependencies
+
+```mermaid
+graph TD;
+  repo(Endjin.GitHubActions.PowerShell)-->docker(Container Image);
+  docker-->action(pr-autoflow GitHub Actions)
+  action-->workflow(pr-autoflow GitHub Workflows)
 ```
 
 ## Endjin.GitHubActions.PowerShell
@@ -247,16 +262,25 @@ jobs:
 - [ ] Enable 'Verbose' mode when workflow run in debug mode
 - [ ] Add more verbose logging where needed
 - [ ] Migrate to scripted build
+## Endjin.CodeOps
 - [ ] Update to latest Endjin.GitHubActions module
+- [ ] Migrate any references to `set-output` workflow commands
 - [ ] Migrate to scripted build
 ## Endjin.RecommendedPractices.Build
 - [ ] Add support for publishing to DockerHub
 - [ ] Detect when GitHub CLI isn't available and have a fallback
 ## Workflows
 - [ ] Apply updated `auto_release`
+- [ ] Upgrade other actions (e.g. `checkout`, `github-script` etc.)
 - [ ] Migrate any references to `set-output` workflow commands
+- [ ] Investigate distinguishing human PRs from 'dependabot' PRs, so human PRs are never blocked for release
 - [ ] Move from .github to 'endjin-codeops'
 
+## Licenses
+
+[![GitHub license](https://img.shields.io/badge/License-Apache%202-blue.svg)](https://raw.githubusercontent.com/endjin/Stacker/master/LICENSE)
+
+This project is available under the Apache 2.0 open source license.
 
 For any licensing questions, please email [&#108;&#105;&#99;&#101;&#110;&#115;&#105;&#110;&#103;&#64;&#101;&#110;&#100;&#106;&#105;&#110;&#46;&#99;&#111;&#109;](&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#108;&#105;&#99;&#101;&#110;&#115;&#105;&#110;&#103;&#64;&#101;&#110;&#100;&#106;&#105;&#110;&#46;&#99;&#111;&#109;)
 
@@ -266,6 +290,7 @@ This project is sponsored by [endjin](https://endjin.com), a UK based Microsoft 
 
 We help small teams achieve big things.
 
+For more information about our products and services, or for commercial support of this project, please [contact us](https://endjin.com/contact-us). 
 
 We produce two free weekly newsletters; [Azure Weekly](https://azureweekly.info) for all things about the Microsoft Azure Platform, and [Power BI Weekly](https://powerbiweekly.info).
 
