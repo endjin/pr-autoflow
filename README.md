@@ -76,3 +76,35 @@ The action emits the following output variables.
 |Name | Description
 |-----|------------
 |is_complete|Flags whether all matching Dependabot PRs have completed.
+
+## Dependencies
+
+```mermaid
+graph TD;
+  repo(Endjin.GitHubActions.PowerShell)-->docker(Container Image);
+  docker-->action(pr-autoflow GitHub Actions)
+  action-->workflow(pr-autoflow GitHub Workflows)
+```
+
+## Endjin.GitHubActions.PowerShell
+- [x] Update PowerShell base image
+- [x] Migrate any references to `set-output` workflow commands
+- [ ] Migrate to scripted build
+## pr-autoflow
+- [ ] Update to latest Endjin.GitHubActions image
+- [ ] Enable 'Verbose' mode when workflow run in debug mode
+- [ ] Add more verbose logging where needed
+- [ ] Migrate to scripted build
+## Endjin.CodeOps
+- [ ] Update to latest Endjin.GitHubActions module
+- [ ] Migrate any references to `set-output` workflow commands
+- [ ] Migrate to scripted build
+## Endjin.RecommendedPractices.Build
+- [ ] Add support for publishing to DockerHub
+- [ ] Detect when GitHub CLI isn't available and have a fallback
+## Workflows
+- [ ] Apply updated `auto_release`
+- [ ] Upgrade other actions (e.g. `checkout`, `github-script` etc.)
+- [ ] Migrate any references to `set-output` workflow commands
+- [ ] Investigate distinguishing human PRs from 'dependabot' PRs, so human PRs are never blocked for release
+- [ ] Move from .github to 'endjin-codeops'
