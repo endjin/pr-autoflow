@@ -141,7 +141,7 @@ $ContainerImageVersionOverride = ""     # override the GitVersion-generated SemV
 # The above container images do not need to be published, as GHA builds them from source
 $SkipPublishContainerImages = $true
 
-$PesterTestsDir = $here
+$PesterTestsDir = "$here/module"
 $PowerShellModulesToPublish = @(
     @{
         ModulePath = "$here/module/Endjin.PRAutoflow.psd1"

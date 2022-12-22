@@ -9,14 +9,16 @@ on:
     branches:
       - master
   workflow_dispatch:
+    inputs:
+      force_publish:
+        description: When true, the PowerShell module will be published to PowerShell Gallery irrespective of its version
+        required: true
+        default: false
+        type: boolean
 
 concurrency:
   group: ci-${{ github.ref }}-1
   cancel-in-progress: true
-
-# permissions:
-#   id-token: read
-#   contents: read
 
 jobs:
   build:
@@ -36,8 +38,20 @@ jobs:
       name: Run build.ps1
       run: |
         $ErrorActionPreference = "Stop"
-        pwsh -f ./build.ps1 -Tasks FullBuild
+
+        Write-Host "GIT_REF: $env:GIT_REF"
+        Write-Host "FORCE_PUBLISH: $env:FORCE_PUBLISH"
+
+        # set whether we are publishing the container image or just validating it
+        $doPublish = $env:GIT_REF.StartsWith("refs/tags/") -or $env:FORCE_PUBLISH -eq "true"
+        $entrypointTasks = $doPublish ? @("FullBuildAndPublish") : @("FullBuild")
+
+        & ./build.ps1 -Tasks $entrypointTasks
       shell: pwsh
+      env:
+        GIT_REF: ${{ github.ref }}
+        FORCE_PUBLISH: ${{ github.event.inputs.force_publish }}
+        BUILDVAR_PowerShellGalleryApiKey: ${{ secrets.ENDJIN_PSGALLERY_APIKEY }}
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action@v2
