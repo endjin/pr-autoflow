@@ -124,13 +124,13 @@ $ContainersToBuild = @(
         Dockerfile = "$here/actions/dependabot-pr-parser/Dockerfile"
         ImageName = "dependabot-pr-parser"
         ContextDir = "$here/actions/dependabot-pr-parser"
-        Arguments = @{}
+        Arguments = @{AllowPreRelease=$false}      # this will be dynamically updated before the image is built
     }
     @{
         Dockerfile = "$here/actions/dependabot-pr-watcher/Dockerfile"
         ImageName = "dependabot-pr-watcher"
         ContextDir = "$here/actions/dependabot-pr-watcher"
-        Arguments = @{}
+        Arguments = @{AllowPreRelease=$false}      # this will be dynamically updated before the image is built
     }
 )
 $ContainerRegistryType = "docker"       # supported values: docker, acr, ghcr
@@ -161,7 +161,14 @@ task RunFirst {}
 task PreInit {}
 task PostInit {}
 task PreVersion {}
-task PostVersion {}
+task PostVersion {
+    # Update the ContainersToBuild variables with the current version number
+    for ($i=0; $i -lt $ContainersToBuild.Count; $i++) {
+        $script:ContainersToBuild[$i].Arguments.AllowPreRelease = ![string]::IsNullOrEmpty($script:GitVersion.PreReleaseTag)
+    }
+    Write-Build White "Updated Dockerfile arguments with current version details:"
+    $ContainersToBuild | ConvertTo-Json | Write-Host
+}
 task PreBuild {}
 task PostBuild {}
 task PreTest {}
