@@ -53,7 +53,7 @@ param (
     [string] $BuildModulePath,
 
     [Parameter()]
-    [version] $BuildModuleVersion = "1.1.1",
+    [version] $BuildModuleVersion = "1.1.2",
 
     [Parameter()]
     [version] $InvokeBuildModuleVersion = "5.10.1"
@@ -87,7 +87,8 @@ if ($MyInvocation.ScriptName -notlike '*Invoke-Build.ps1') {
 if (!($BuildModulePath)) {
     if (!(Get-Module -ListAvailable Endjin.RecommendedPractices.Build | ? { $_.Version -eq $BuildModuleVersion })) {
         Write-Information "Installing 'Endjin.RecommendedPractices.Build' module..."
-        Install-Module Endjin.RecommendedPractices.Build -RequiredVersion $BuildModuleVersion -Scope CurrentUser -Force -Repository PSGallery
+        # Install-Module Endjin.RecommendedPractices.Build -RequiredVersion $BuildModuleVersion -Scope CurrentUser -Force -Repository PSGallery
+        Install-Module Endjin.RecommendedPractices.Build -RequiredVersion "1.1.2-beta0005" -Scope CurrentUser -Force -Repository PSGallery -AllowPrerelease
     }
     $BuildModulePath = "Endjin.RecommendedPractices.Build"
 }
@@ -136,7 +137,19 @@ $ContainerRegistryType = "docker"       # supported values: docker, acr, ghcr
 $UseAcrTasks = $false                   # when true, images will be build & published using ACR Tasks
 $ContainerRegistryPublishPrefix = ""    # optional additional tag details to prepend to image name when publishing to a container registry
 $ContainerImageVersionOverride = ""     # override the GitVersion-generated SemVer used for tagging container images
+
+# The above container images do not need to be published, as GHA builds them from source
+$SkipPublishContainerImages = $true
+
 $PesterTestsDir = $here
+$PowerShellModulesToPublish = @(
+    @{
+        ModulePath = "$here/module/Endjin.PRAutoflow.psd1"
+        FunctionsToExport = @("*")
+        CmdletsToExport = @()
+        AliasesToExport = @()
+    }
+)
 
 
 # Synopsis: Build, Test and Package
