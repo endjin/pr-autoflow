@@ -1,3 +1,5 @@
+#Requires -Modules @{ ModuleName='Endjin.GitHubActions'; ModuleVersion='0.0' }
+
 [CmdletBinding()]
 param (
     [Parameter(Mandatory=$true)]
@@ -6,12 +8,16 @@ param (
 )
 
 $ErrorActionPreference = 'Stop'
+if ($Env:SYSTEM_DEBUG -eq 'true') {
+    $VerbosePreference = 'Continue'
+}
 
 try {
     $configJson = Get-Content -Raw $ConfigFile
     $config =  $configJson | ConvertFrom-Json
 
-    Set-Output 'configJson' $configJson
+    # Output variable values cannot include newlines since switching to the GITHUB_OUTPUT mechanism
+    Set-Output 'configJson' ($config | ConvertTo-Json -Compress)
 
     $config.PSObject.Properties | ForEach-Object {
         Set-Output $_.Name $_.Value 

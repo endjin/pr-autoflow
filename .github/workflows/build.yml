@@ -1,38 +1,60 @@
 name: build
 on:
-- push
-- workflow_dispatch
+  push:
+    branches:
+      - master
+    tags-ignore:
+      - v*
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      force_publish:
+        description: When true, the PowerShell module will be published to PowerShell Gallery irrespective of its version
+        required: true
+        default: false
+        type: boolean
+
+concurrency:
+  group: ci-${{ github.ref }}-1
+  cancel-in-progress: true
 
 jobs:
-  run_tests:
+  build:
     runs-on: ubuntu-latest
-    name: Run Pester tests
-    steps:
-    - uses: actions/checkout@v2
-    - run: pwsh -f ./run-tests.ps1
-
-  run_gitversion:
-    runs-on: ubuntu-latest
-    name: Run GitVersion
+    name: Build
     outputs:
-      semver: ${{ steps.gitversion.outputs.semver }}
-      preReleaseTag: ${{ steps.gitversion.outputs.preReleaseTag }}
+      semver: ${{ steps.run_build.outputs.SemVer }}
+      major: ${{ steps.run_build.outputs.Major }}
+      majorMinor: ${{ steps.run_build.outputs.Major }}.${{ steps.run_build.outputs.Minor }}
+      preReleaseTag: ${{ steps.run_build.outputs.PreReleaseTag }}
     steps:
-    - uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '3.1.x'
-
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-    - name: Install GitVersion
+    - id: run_build
+      name: Run build.ps1
       run: |
-        dotnet tool install -g GitVersion.Tool --version 5.2.4
-        echo "/github/home/.dotnet/tools" >> $GITHUB_PATH    
-        
-    - name: Run GitVersion
-      id: run_gitversion
-      run: |
-        pwsh -noprofile -c '(dotnet-gitversion | ConvertFrom-Json).psobject.properties | % { echo ("::set-output name={0}::{1}" -f $_.name, $_.value) }'
+        $ErrorActionPreference = "Stop"
 
+        Write-Host "GIT_REF: $env:GIT_REF"
+        Write-Host "FORCE_PUBLISH: $env:FORCE_PUBLISH"
+
+        # set whether we are publishing the container image or just validating it
+        $doPublish = $env:GIT_REF.StartsWith("refs/tags/") -or $env:FORCE_PUBLISH -eq "true"
+        $entrypointTasks = $doPublish ? @("FullBuildAndPublish") : @("FullBuild")
+
+        & ./build.ps1 -Tasks $entrypointTasks
+      shell: pwsh
+      env:
+        GIT_REF: ${{ github.ref }}
+        FORCE_PUBLISH: ${{ github.event.inputs.force_publish }}
+        BUILDVAR_PowerShellGalleryApiKey: ${{ secrets.ENDJIN_PSGALLERY_APIKEY }}
+
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        nunit_files: "PesterTestResults.xml"
