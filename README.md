@@ -69,11 +69,11 @@ Given the following configuration file exists in the repo.
 The following set of steps will surface those settings within a workflow.
 ```yaml
 steps:
-  - uses: actions/checkout@v2
+  - uses: actions/checkout@v3
 
   - name: Read pr-autoflow configuration
     id: get_config
-    uses: endjin/pr-autoflow/actions/read-configuration@v1
+    uses: endjin/pr-autoflow/actions/read-configuration@v4
     with:
       config_file: .github/config/myconfig.json
   
@@ -137,24 +137,24 @@ jobs:
       is_auto_release_candidate: ${{ steps.parse_dependabot_pr_autorelease.outputs.is_interesting_package }}
       semver_increment: ${{ steps.parse_dependabot_pr_automerge.outputs.semver_increment }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Read pr-autoflow configuration
         id: get_pr_autoflow_config
-        uses: endjin/pr-autoflow/actions/read-configuration@v1
+        uses: endjin/pr-autoflow/actions/read-configuration@v4
         with:
           config_file: .github/config/pr-autoflow.json
 
       - name: Dependabot PR - AutoMerge Candidate
         id: parse_dependabot_pr_automerge
-        uses: endjin/pr-autoflow/actions/dependabot-pr-parser@v1
+        uses: endjin/pr-autoflow/actions/dependabot-pr-parser@v4
         with:
           pr_title: ${{ github.event.pull_request.title }}
           package_wildcard_expressions: ${{ steps.get_pr_autoflow_config.outputs.AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS }}
 
       - name: Dependabot PR - AutoRelease Candidate
         id: parse_dependabot_pr_autorelease
-        uses: endjin/pr-autoflow/actions/dependabot-pr-parser@v1
+        uses: endjin/pr-autoflow/actions/dependabot-pr-parser@v4
         with:
           pr_title: ${{ github.event.pull_request.title }}
           package_wildcard_expressions: ${{ steps.get_pr_autoflow_config.outputs.AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS }}
@@ -205,15 +205,19 @@ jobs:
     steps:
     - name: Get Open PRs
       id: get_open_pr_list
-      uses: actions/github-script@v2
+      uses: actions/github-script@v6
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        # find all open PRs that are targetting the default branch (i.e. main/master)
+        # return their titles, so they can parsed later to determine if they are
+        # Dependabot PRs and whether we should wait for them to be auto-merged before
+        # allowing a release event.
         script: |
-          const pulls = await github.pulls.list({
+          const pulls = await github.rest.pulls.list({
             owner: context.payload.repository.owner.login,
             repo: context.payload.repository.name,
             state: 'open',
-            base: 'master'
+            base: 'main'
           });
           return JSON.stringify(pulls.data.map(p=>p.title))
         result-encoding: string
@@ -222,17 +226,17 @@ jobs:
       run: |
         echo "open_pr_list : ${{ steps.get_open_pr_list.outputs.result }}"
        
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     
     - name: Read pr-autoflow configuration
       id: get_pr_autoflow_config
-      uses: endjin/pr-autoflow/actions/read-configuration@v1
+      uses: endjin/pr-autoflow/actions/read-configuration@v4
       with:
         config_file: .github/config/pr-autoflow.json
 
     - name: Watch Dependabot PRs
       id: watch_dependabot_prs      
-      uses: endjin/pr-autoflow/actions/dependabot-pr-watcher@v1
+      uses: endjin/pr-autoflow/actions/dependabot-pr-watcher@v4
       with:
         pr_titles: ${{ steps.get_open_pr_list.outputs.result }}
         package_wildcard_expressions: ${{ steps.get_pr_autoflow_config.outputs.AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS }}
@@ -252,29 +256,6 @@ graph TD;
   docker-->action(pr-autoflow GitHub Actions)
   action-->workflow(pr-autoflow GitHub Workflows)
 ```
-
-## Endjin.GitHubActions.PowerShell
-- [x] Update PowerShell base image
-- [x] Migrate any references to `set-output` workflow commands
-- [ ] Migrate to scripted build
-## pr-autoflow
-- [ ] Update to latest Endjin.GitHubActions image
-- [ ] Enable 'Verbose' mode when workflow run in debug mode
-- [ ] Add more verbose logging where needed
-- [ ] Migrate to scripted build
-## Endjin.CodeOps
-- [ ] Update to latest Endjin.GitHubActions module
-- [ ] Migrate any references to `set-output` workflow commands
-- [ ] Migrate to scripted build
-## Endjin.RecommendedPractices.Build
-- [ ] Add support for publishing to DockerHub
-- [ ] Detect when GitHub CLI isn't available and have a fallback
-## Workflows
-- [ ] Apply updated `auto_release`
-- [ ] Upgrade other actions (e.g. `checkout`, `github-script` etc.)
-- [ ] Migrate any references to `set-output` workflow commands
-- [ ] Investigate distinguishing human PRs from 'dependabot' PRs, so human PRs are never blocked for release
-- [ ] Move from .github to 'endjin-codeops'
 
 ## Licenses
 
