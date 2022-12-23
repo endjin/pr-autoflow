@@ -16,7 +16,8 @@ try {
     $configJson = Get-Content -Raw $ConfigFile
     $config =  $configJson | ConvertFrom-Json
 
-    Set-Output 'configJson' $configJson
+    # Output variable values cannot include newlines since switching to the GITHUB_OUTPUT mechanism
+    Set-Output 'configJson' ($config | ConvertTo-Json -Compress)
 
     $config.PSObject.Properties | ForEach-Object {
         Set-Output $_.Name $_.Value 
