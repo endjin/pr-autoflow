@@ -132,6 +132,12 @@ $ContainersToBuild = @(
         ContextDir = "$here/actions/dependabot-pr-watcher"
         Arguments = @{AllowPreRelease=$false}      # this will be dynamically updated before the image is built
     }
+    @{
+        Dockerfile = "$here/actions/read-configuration/Dockerfile"
+        ImageName = "read-configuration"
+        ContextDir = "$here/actions/read-configuration"
+        Arguments = @{}
+    }
 )
 $ContainerRegistryType = "docker"       # supported values: docker, acr, ghcr
 $UseAcrTasks = $false                   # when true, images will be build & published using ACR Tasks
@@ -162,9 +168,11 @@ task PreInit {}
 task PostInit {}
 task PreVersion {}
 task PostVersion {
-    # Update the ContainersToBuild variables with the current version number
+    # Update the ContainersToBuild variables to control which module version gets installed
     for ($i=0; $i -lt $ContainersToBuild.Count; $i++) {
-        $script:ContainersToBuild[$i].Arguments.AllowPreRelease = ![string]::IsNullOrEmpty($script:GitVersion.PreReleaseTag)
+        if ($script:ContainersToBuild[$i].Arguments.ContainsKey("AllowPreRelease")) {
+            $script:ContainersToBuild[$i].Arguments.AllowPreRelease = ![string]::IsNullOrEmpty($script:GitVersion.PreReleaseTag)
+        }
     }
     Write-Build White "Updated Dockerfile arguments with current version details:"
     $ContainersToBuild | ConvertTo-Json | Write-Host
