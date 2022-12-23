@@ -1,3 +1,5 @@
+#Requires -Modules @{ ModuleName='Endjin.GitHubActions'; ModuleVersion='0.0' }
+
 [CmdletBinding()]
 param (
     [Parameter(Mandatory=$true)]
@@ -6,6 +8,9 @@ param (
 )
 
 $ErrorActionPreference = 'Stop'
+if ($Env:SYSTEM_DEBUG -eq 'true') {
+    $VerbosePreference = 'Continue'
+}
 
 try {
     $configJson = Get-Content -Raw $ConfigFile
