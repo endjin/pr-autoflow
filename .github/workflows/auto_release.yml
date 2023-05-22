@@ -116,6 +116,7 @@ jobs:
 
           releasePendingPrDetails = pulls.data.items.
                             filter(function (x) { return x.labels.map(l=>l.name).includes('pending_release') }).
+                            filter(function (x) { return !x.labels.map(l=>l.name).includes('no_release') }).
                             map(p=>`#${p.number} '${p.title}' in ${p.repository_url}`);
           core.info(`releasePendingPrDetails: ${JSON.stringify(releasePendingPrDetails)}`);
 
