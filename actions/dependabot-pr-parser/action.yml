@@ -23,7 +23,7 @@ outputs:
     description: 'The folder where the dependency is updated.'
   semver_increment:
     description: 'The type of update (major, minor, patch).'
-  is_matching_package:
+  is_interesting_package:
     description: 'Flags whether the dependency matched any of the provided package name wildcard patterns'
 runs:
   using: "docker"
